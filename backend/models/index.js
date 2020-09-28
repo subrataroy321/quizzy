@@ -1,3 +1,4 @@
+require("dotenv").config()
 const mongoose = require("mongoose")
 
 // mongo connection
@@ -17,3 +18,5 @@ db.once("open", () => {
 db.on("error", (error) => {
   console.log(`Database error\n${error}`)
 })
+
+module.exports.User = require("./User")
