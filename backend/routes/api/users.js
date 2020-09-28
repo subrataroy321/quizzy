@@ -5,10 +5,10 @@ const bcrypt = require("bcryptjs")
 
 const jwt = require("jsonwebtoken")
 const passport = require("passport")
+const JWT_SECRET = process.env.JWT_SECRET
 
 // load user model
 const db = require("../../models")
-const User = require("../../models/User")
 
 // POST route api/users/register (Public)
 router.post("/register", (req, res) => {
@@ -45,3 +45,58 @@ router.post("/register", (req, res) => {
       res.status(503).send({ message: "Server Error" })
     })
 })
+
+// POST api/users/login (Public)
+router.post("/login", (req, res) => {
+  const email = req.body.email
+  const password = req.body.password
+  // find user using email
+  db.User.findOne({ email })
+    .then((user) => {
+      if (!user) {
+        res.status(400).json({ message: "User not found" })
+      } else {
+        // check input password and saved password with bcrypt
+        bcrypt.compare(password, user.password).then((isMatch) => {
+          // if matchs generate a token using user saved information
+          if (isMatch) {
+            const payload = {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+            }
+
+            // sign in token
+            jwt.sign(
+              payload,
+              JWT_SECRET,
+              { expiresIn: 3600 },
+              (error, token) => {
+                res.json({ success: true, token: `Bearer ${token}` })
+              }
+            )
+          } else {
+            return res
+              .status(400)
+              .json({ password: "Password or email is incorrect" })
+          }
+        })
+      }
+    })
+    .catch((err) => {
+      console.log("Error while creating a user ", err)
+      res.status(503).send({ message: "Server Error" })
+    })
+})
+
+// GET api/user/current (Private)
+router.get("/current", passport.authenticate("jwt", { session: false }), (req, res) => {
+    res.json({
+      id: req.user.is,
+      name: req.user.name,
+      email: req.user.email,
+    })
+  }
+)
+
+module.exports = router

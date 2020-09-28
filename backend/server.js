@@ -4,6 +4,7 @@ const app = express()
 const cors = require("cors")
 const port = process.env.PORT || 8000
 const passport = require("passport")
+const users = require('./routes/api/users')
 
 // middleware
 app.use(cors())
@@ -22,6 +23,9 @@ app.get("/", (req, res) => {
     .status(200)
     .json({ message: "Smile, You are being watched by the Backend Team" })
 })
+
+// api/users route middleware
+app.use('/api/users', users)
 
 // SERVER PORT TO LISTEN
 app.listen(port, () => {
