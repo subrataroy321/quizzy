@@ -57,7 +57,7 @@ const Navbar = (props) => {
                 </NavLink>
               </li>
               <li className="nav-item">
-                <NavLink className="nav-link" to="/login">
+                <NavLink className="nav-link" to="/signin">
                   Sign In
                 </NavLink>
               </li>
