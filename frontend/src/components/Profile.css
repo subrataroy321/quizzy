@@ -1,0 +1,31 @@
+.profile{
+    text-align: center;
+    padding-bottom: 50px;
+}
+
+.profileData{
+    margin-bottom: 50px;
+}
+
+#question-field{
+    border-style: groove;
+    border-width: 1px;
+    padding: 10px;
+}
+
+.question{
+    width: 500px;
+}
+
+.answer {
+    width: 200px;
+}
+
+
+.correct{
+    width: 50px;
+    text-align: center;
+}
+#title{
+    text-align: center;
+}
