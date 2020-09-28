@@ -1,12 +1,17 @@
 import React from "react"
 import "./App.css"
+import { Switch, Route, Redirect } from 'react-router-dom'
+
+import Welcome from './components/Welcome'
 
 function App() {
   return (
     <div className="App">
-      <header>
-        <h2>Welcome to Quizzy</h2>
-      </header>
+      <div>
+        <Switch>
+          <Route exact path="/" component={Welcome}/>
+        </Switch>
+      </div>
     </div>
   )
 }
