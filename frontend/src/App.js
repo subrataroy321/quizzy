@@ -8,6 +8,9 @@ import Welcome from "./components/Welcome"
 import Navbar from "./components/Navbar"
 import Footer from "./components/Footer"
 import Profile from "./components/Profile"
+import About from "./components/About"
+import Register from "./components/Register"
+import Signin from "./components/Signin"
 
 const PrivateRoute = ({component: Component, ...rest}) => {
   const user = localStorage.getItem('jwtToken')
@@ -24,7 +27,7 @@ const PrivateRoute = ({component: Component, ...rest}) => {
 
 function App() {
   let [currentUser, setCurrentUser] = useState('')
-  let [isAuthenticated, setIsAuthenticated] = useState(false)
+  let [isAuthenticated, setIsAuthenticated] = useState(true)
 
   useEffect(() => {
     let token
@@ -36,7 +39,7 @@ function App() {
       setCurrentUser(token)
       setIsAuthenticated(true)
     }
-  })
+  }, [])
 
   let nowCurrentUser = (userData) => {
     console.log('nowCurrentUser is working...')
@@ -57,6 +60,12 @@ function App() {
       <Navbar handleLogout={handleLogout} isAuth={isAuthenticated} />
       <div className="container mt-5">
         <Switch>
+          <Route 
+            path='/Signin' 
+            render = { (props) =>  <Signin {...props} nowCurrentUser={nowCurrentUser} setIsAuthenticated={setIsAuthenticated} user={currentUser} /> }
+          />
+          <Route path='/register' component={Register}/>
+          <Route path='/about' component={About}/>
           <PrivateRoute path='/profile' component={Profile} user={currentUser} />
           <Route exact path="/" component={Welcome} />
         </Switch>
