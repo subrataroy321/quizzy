@@ -6,12 +6,12 @@ const socket = socketIOClient(ENDPOINT)
 var urlParams = new URLSearchParams(window.location.search)
 var params = {id: urlParams.get('id')}
 
-
-const Host = (props) => {
+const Host = () => {
     let [players, setPlayers] = useState('')
     let [gamePin, setGamePin] = useState('')
-
+    
     socket.on('connect', function() {
+        console.log(params)
         socket.emit('host-join', params)
     })
 
@@ -19,12 +19,20 @@ const Host = (props) => {
         setGamePin(data.pin)
     })
 
-    const endGame = () => {
-        window.location.href = "/"
-    }
+    socket.on('updatePlayerLobby', function(data) {
+        setPlayers('')
+
+        for (let i = 0; i < data.length; i++){
+            setPlayers(`${players}${data[i].name}\n`)
+        }
+    })
 
     const startGame = () => {
+        socket.emit('startGame')
+    }
 
+    const endGame = () => {
+        window.location.href = "/"
     }
 
     return (
