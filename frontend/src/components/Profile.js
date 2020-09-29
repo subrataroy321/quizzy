@@ -15,9 +15,6 @@ const Profile = (props) => {
       <p>
         <strong>Email:</strong> {props.user.email}
       </p>
-      <p>
-        <strong>ID:</strong> {props.user.id}
-      </p>
     </div>
   ) : (
     <h4>Loading...</h4>
@@ -27,7 +24,7 @@ const Profile = (props) => {
     return (
       <div classNameName="text-center pt-4">
         <h3>
-          Please <Link to="/login">Log in</Link> to view this page
+          Please <Link to="/signin">Sign in</Link> to view this page
         </h3>
       </div>
     )
@@ -69,7 +66,7 @@ const Profile = (props) => {
 
   function updateDatabase() {
     addToQuestionsArray()
-    var quiz = { id: 0, name: quizTitle, questions: questionsArray }
+    var quiz = { id: 0, userId: props.user.id , name: quizTitle, questions: questionsArray }
     socket.emit("newQuiz", quiz)
   }
 

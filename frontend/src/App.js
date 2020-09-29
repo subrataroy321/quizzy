@@ -20,7 +20,7 @@ const PrivateRoute = ({component: Component, ...rest}) => {
       ? 
       <Component {...rest} {...props} /> 
       : 
-      <Redirect to="/login" />
+      <Redirect to="/signin" />
       )
   }} />
 }
@@ -61,7 +61,7 @@ function App() {
       <div className="container mt-5">
         <Switch>
           <Route 
-            path='/Signin' 
+            path='/signin' 
             render = { (props) =>  <Signin {...props} nowCurrentUser={nowCurrentUser} setIsAuthenticated={setIsAuthenticated} user={currentUser} /> }
           />
           <Route path='/register' component={Register}/>
