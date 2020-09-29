@@ -11,6 +11,7 @@ import Profile from "./components/Profile"
 import About from "./components/About"
 import Register from "./components/Register"
 import Signin from "./components/Signin"
+import Host from "./components/Host"
 
 const PrivateRoute = ({component: Component, ...rest}) => {
   const user = localStorage.getItem('jwtToken')
@@ -67,6 +68,7 @@ function App() {
           <Route path='/register' component={Register}/>
           <Route path='/about' component={About}/>
           <PrivateRoute path='/profile' component={Profile} user={currentUser} />
+          <Route path='/host' component={Host} />
           <Route exact path="/" component={Welcome} />
         </Switch>
       </div>
