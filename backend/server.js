@@ -10,6 +10,7 @@ const socketIo = require("socket.io")
 
 // import classes
 const { LiveGames } = require("./utils/liveGames")
+const { Players } = require("./utils/players")
 
 // middleware
 app.use(cors())
@@ -25,6 +26,7 @@ require("./config/passport")(passport)
 const server = http.createServer(app)
 const io = socketIo(server)
 var games = new LiveGames()
+var players = new Players()
 
 var MongoClient = require("mongodb").MongoClient
 var MONGO_URI = process.env.MONGO_URI
@@ -36,7 +38,7 @@ io.on("connection", (socket) => {
   })
 
   socket.on("host-join", (data) => {
-    
+
     MongoClient.connect(MONGO_URI, function (err, db) {
       if (err) throw err
       var dbo = db.db("quizzy")
@@ -70,6 +72,35 @@ io.on("connection", (socket) => {
           db.close()
         })
     })
+  })
+
+  socket.on('player-join', function(params) {
+    let gameFound = false
+
+    for( let i = 0; i < games.games.length; i++){
+      if(params.pin == games.games[i].pin){
+        var hostId = games.games[i].hostId
+
+        players.addPlayer(hostId, socket.id, params.name, {score: 0, answer: 0})
+        socket.join(params.pin)
+
+        var playersInGame = players.getPlayers(hostId)
+
+        io.to(params.pin).emit('updatePlayerLobby', playersInGame)
+        gameFound = true
+      }
+    }
+
+    if(gameFound == false){
+      socket.emit('noGamesFound')
+    }
+    
+  })
+
+  socket.on('startGame', function() {
+    var game = games.getGame(socket.id)
+    game.gameLive = true
+    socket.emit('gameStarted', game.hostId)
   })
 
   socket.on("newQuiz", function (data) {
