@@ -6,7 +6,7 @@ const port = process.env.PORT || 8000
 const passport = require("passport")
 const users = require("./routes/api/users")
 const http = require("http")
-const socketIo = require("socket.io")
+const socketIO = require("socket.io")
 
 // import classes
 const { LiveGames } = require("./utils/liveGames")
@@ -24,7 +24,7 @@ app.use(passport.initialize())
 require("./config/passport")(passport)
 
 const server = http.createServer(app)
-const io = socketIo(server)
+const io = socketIO(server)
 var games = new LiveGames()
 var players = new Players()
 
@@ -33,6 +33,7 @@ var MONGO_URI = process.env.MONGO_URI
 
 io.on("connection", (socket) => {
   console.log("New client connected")
+
   socket.on("disconnect", () => {
     console.log("Client disconnected")
   })
@@ -76,12 +77,15 @@ io.on("connection", (socket) => {
 
   socket.on('player-join', function(params) {
     let gameFound = false
-
     for( let i = 0; i < games.games.length; i++){
       if(params.pin == games.games[i].pin){
+        
+        console.log('Player connected to game');
+        
         var hostId = games.games[i].hostId
-
+        
         players.addPlayer(hostId, socket.id, params.name, {score: 0, answer: 0})
+        
         socket.join(params.pin)
 
         var playersInGame = players.getPlayers(hostId)
@@ -94,7 +98,7 @@ io.on("connection", (socket) => {
     if(gameFound == false){
       socket.emit('noGamesFound')
     }
-    
+
   })
 
   socket.on('startGame', function() {
