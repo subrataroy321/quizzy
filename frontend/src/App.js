@@ -11,6 +11,8 @@ import Profile from "./components/Profile"
 import About from "./components/About"
 import Register from "./components/Register"
 import Signin from "./components/Signin"
+import Host from "./components/Host"
+import Player from "./components/Player"
 
 const PrivateRoute = ({component: Component, ...rest}) => {
   const user = localStorage.getItem('jwtToken')
@@ -20,7 +22,7 @@ const PrivateRoute = ({component: Component, ...rest}) => {
       ? 
       <Component {...rest} {...props} /> 
       : 
-      <Redirect to="/login" />
+      <Redirect to="/signin" />
       )
   }} />
 }
@@ -61,12 +63,14 @@ function App() {
       <div className="container mt-5">
         <Switch>
           <Route 
-            path='/Signin' 
+            path='/signin' 
             render = { (props) =>  <Signin {...props} nowCurrentUser={nowCurrentUser} setIsAuthenticated={setIsAuthenticated} user={currentUser} /> }
           />
           <Route path='/register' component={Register}/>
           <Route path='/about' component={About}/>
           <PrivateRoute path='/profile' component={Profile} user={currentUser} />
+          <Route path='/player' component={Player} />
+          <Route path='/host' component={Host} />
           <Route exact path="/" component={Welcome} />
         </Switch>
       </div>
