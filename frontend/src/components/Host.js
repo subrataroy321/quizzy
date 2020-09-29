@@ -21,7 +21,7 @@ const Host = () => {
 
     socket.on('updatePlayerLobby', function(data) {
         setPlayers('')
-
+        
         for (let i = 0; i < data.length; i++){
             setPlayers(`${players}${data[i].name}\n`)
         }
