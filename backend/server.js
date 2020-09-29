@@ -89,7 +89,7 @@ io.on("connection", (socket) => {
         socket.join(params.pin)
 
         var playersInGame = players.getPlayers(hostId)
-
+        
         io.to(params.pin).emit('updatePlayerLobby', playersInGame)
         gameFound = true
       }
