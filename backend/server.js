@@ -75,6 +75,53 @@ io.on("connection", (socket) => {
     })
   })
 
+  socket.on('host-join-game', (data) => {
+    var oldHostId = data.id
+    var game = games.getGame(oldHostId)
+    if(game) {
+      game.hostId = socket.id
+      socket.join(game.pin)
+      var playerData = players.getPlayers(oldHostId)
+      for (let i = 0; i < Object.keys(players.players).length; i++){
+        if(players.players[i].hostId == oldHostId){
+          players.players[i].hostId = socket.id
+        }
+      }
+      var gameId = game.gameData.gameid
+      MongoClient.connect(MONGO_URI, function(err, db) {
+        if (err) throw err
+
+        var dbo = db.db('quizzy')
+        dbo.collection('quizzyGames').find({id: parseInt(gameId)}).toArray(function(err,res) {
+          if (err) throw err;
+          
+          var question = res[0].questions[0].question;
+          var answer1 = res[0].questions[0].answers[0];
+          var answer2 = res[0].questions[0].answers[1];
+          var answer3 = res[0].questions[0].answers[2];
+          var answer4 = res[0].questions[0].answers[3];
+          var correctAnswer = res[0].questions[0].correct;
+
+          socket.emit('gameQuestions', {
+            q1: question,
+            a1: answer1,
+            a2: answer2,
+            a3: answer3,
+            a4: answer4,
+            correct: correctAnswer,
+            playersInGame: playerData.length
+          });
+          db.close();
+        }) 
+      })
+
+      io.to(game.pin).emit('gameStartedPlayer')
+      game.gameData.questionLive = true;
+    } else {
+      socket.emit('noGameFound')
+    }
+  })
+
   socket.on('player-join', function(params) {
     let gameFound = false
     
@@ -118,6 +165,7 @@ io.on("connection", (socket) => {
   })
 
   socket.on("newQuiz", function (data) {
+    console.log(data.questions)
     MongoClient.connect(MONGO_URI, function (err, db) {
       if (err) throw err
       var dbo = db.db("quizzy")
