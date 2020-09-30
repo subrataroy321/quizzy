@@ -17,7 +17,6 @@ const Profile = (props) => {
   let [answer4, setAnswer4] = useState("")
   let [correctAnswer, setCorrectAnswer] = useState("")
   let [randomColor, setRandomColor] = useState("")
-  let [savedGames, setSavedGames]= useState([])
 
   const userData = props.user ? (
     <div classNameName="text-center pt-4">
@@ -107,23 +106,16 @@ const Profile = (props) => {
     window.location.href = "../"
   }
 
-  socket.on('connect', function(){
-    socket.emit('requestDbNames', props.user.id);//Get database names to display to user
-  });
-
-  socket.on("startGameFromCreator", function (data) {
-    window.location.href = "../../host/?id=" + data
-  })
-
-  socket.on("gameNamesData", function(data) {
-    setSavedGames(data)
-  })
-
   function chooseRandomColor() {
     var colors = ["#4CAF50", "#f94a1e", "#3399ff", "#ff9933"]
     var randomNum = Math.floor(Math.random() * 4)
     setRandomColor(colors[randomNum])
   }
+
+  socket.on("startGameFromCreator", function (data) {
+    window.location.href = "../../host/?id=" + data
+  })
+
 
   useEffect(() => {
     chooseRandomColor()
@@ -132,6 +124,7 @@ const Profile = (props) => {
   return (
     <div className="profile">
       <div className="profileData">{props.user ? userData : errorDiv()}</div>
+      <a href="/savedQuizzys"><button>Saved Quizzes</button></a>
       <h1 id="title">Quizzy Creator Studio</h1>
       <div className="form-field">
         <label id="quizTitle">Quiz Title: </label>
@@ -234,12 +227,6 @@ const Profile = (props) => {
         </button>
       </div>
       <br/>
-      <div>
-          <h1>Saved Quizzy's</h1>
-          {savedGames.map((game, i) => {
-            return <a href={`/host/?id=${game.id}`} key={i}><h3>{game.name}</h3></a>
-          })}
-      </div>
     </div>
   )
 }
