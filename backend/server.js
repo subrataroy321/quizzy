@@ -77,19 +77,15 @@ io.on("connection", (socket) => {
 
   socket.on('player-join', function(params) {
     let gameFound = false
+    
     for( let i = 0; i < games.games.length; i++){
       if(params.pin == games.games[i].pin){
-        
         console.log('Player connected to game');
-        
         var hostId = games.games[i].hostId
-        
         players.addPlayer(hostId, socket.id, params.name, {score: 0, answer: 0})
-        
         socket.join(params.pin)
 
         var playersInGame = players.getPlayers(hostId)
-        
         io.to(params.pin).emit('updatePlayerLobby', playersInGame)
         gameFound = true
       }
@@ -105,6 +101,20 @@ io.on("connection", (socket) => {
     var game = games.getGame(socket.id)
     game.gameLive = true
     socket.emit('gameStarted', game.hostId)
+  })
+
+  socket.on('requestDbNames', function(userId) {
+    MongoClient.connect(MONGO_URI, function(err, db){
+      if (err) throw err
+
+      var dbo = db.db('quizzy')
+      dbo.collection('quizzyGames').find({userId: userId}).toArray(function(err, res) {
+        if (err) throw err
+
+        socket.emit('gameNamesData', res)
+        db.close();
+      })
+    })
   })
 
   socket.on("newQuiz", function (data) {
