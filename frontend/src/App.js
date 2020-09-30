@@ -12,6 +12,7 @@ import About from "./components/About"
 import Register from "./components/Register"
 import Signin from "./components/Signin"
 import Host from "./components/host/Host"
+import HostGame from "./components/host/HostGame"
 import Player from "./components/player/Player"
 
 const PrivateRoute = ({component: Component, ...rest}) => {
@@ -71,6 +72,7 @@ function App() {
           <PrivateRoute path='/profile' component={Profile} user={currentUser} />
           <Route path='/player' component={Player} />
           <Route path='/host' component={Host} />
+          <Route path='/hostgame' component={HostGame} />
           <Route exact path="/" component={Welcome} />
         </Switch>
       </div>

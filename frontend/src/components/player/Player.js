@@ -19,6 +19,15 @@ const Player = () => {
         setTimeout(function(){window.location.href = '../'}, 5000)
     });
 
+    socket.on('hostDisconnect', function(){
+        alert.show('Host Ended or Disconnected!')
+        setTimeout(function(){window.location.href = '../'}, 5000)
+    });
+
+    socket.on('gameStartedPlayer', function(){
+        window.location.href="/player/game/?id=" + socket.id;
+    });
+
     return (
         <div className="player">
             <h1 id = "title1">Waiting on host to start game</h1>
