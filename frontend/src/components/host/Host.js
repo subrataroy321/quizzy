@@ -35,6 +35,15 @@ const Host = () => {
         window.location.href = "/"
     }
 
+    // when server starts the game change the href
+    socket.on('gameStarted', function(id){
+        window.location.href = "/host/game/?id" + id
+    })
+
+    socket.on('noGameFound', function(){
+        window.location.href = '../../';//Redirect user to 'join game' page
+     });
+
     return (
         <div className="host">
             <button id = "cancel" onClick = {endGame}>Cancel Game</button>

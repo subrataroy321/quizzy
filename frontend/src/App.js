@@ -11,8 +11,8 @@ import Profile from "./components/Profile"
 import About from "./components/About"
 import Register from "./components/Register"
 import Signin from "./components/Signin"
-import Host from "./components/Host"
-import Player from "./components/Player"
+import Host from "./components/host/Host"
+import Player from "./components/player/Player"
 
 const PrivateRoute = ({component: Component, ...rest}) => {
   const user = localStorage.getItem('jwtToken')
