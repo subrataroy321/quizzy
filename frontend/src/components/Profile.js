@@ -40,6 +40,7 @@ const Profile = (props) => {
   let [answer4, setAnswer4] = useState("")
   let [correctAnswer, setCorrectAnswer] = useState("")
   let [randomColor, setRandomColor] = useState("")
+  let [savedGames, setSavedGames]= useState([])
 
   const handleQuizTitle = (e) => {
     setQuizTitle(e.target.value)
@@ -105,8 +106,16 @@ const Profile = (props) => {
     window.location.href = "../"
   }
 
+  socket.on('connect', function(){
+    socket.emit('requestDbNames', props.user.id);//Get database names to display to user
+  });
+
   socket.on("startGameFromCreator", function (data) {
     window.location.href = "../../host/?id=" + data
+  })
+
+  socket.on("gameNamesData", function(data) {
+    setSavedGames(data)
   })
 
   function chooseRandomColor() {
@@ -122,7 +131,7 @@ const Profile = (props) => {
   return (
     <div className="profile">
       <div className="profileData">{props.user ? userData : errorDiv()}</div>
-      <h1 id="title">Quiz Creator Studio</h1>
+      <h1 id="title">Quizzy Creator Studio</h1>
       <div className="form-field">
         <label id="quizTitle">Quiz Title: </label>
         <input
@@ -222,6 +231,13 @@ const Profile = (props) => {
         <button onClick={cancelQuiz}>
           Cancel quiz and return to quiz selection
         </button>
+      </div>
+      <br/>
+      <div>
+          <h1>Saved Quizzy's</h1>
+          {savedGames.map((game, i) => {
+            return <a href={`/host/?id=${game.id}`} key={i}><h3>{game.name}</h3></a>
+          })}
       </div>
     </div>
   )
