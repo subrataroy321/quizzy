@@ -6,6 +6,19 @@ const ENDPOINT = process.env.REACT_APP_SERVER_URL
 const socket = socketIOClient(ENDPOINT)
 
 const Profile = (props) => {
+
+  let [questionNum, setQuestionNum] = useState(1) //Starts at two because question 1 is already present
+  let [questionsArray, setQuestionsArray] = useState([])
+  let [quizTitle, setQuizTitle] = useState("")
+  let [question, setQuestion] = useState("")
+  let [answer1, setAnswer1] = useState("")
+  let [answer2, setAnswer2] = useState("")
+  let [answer3, setAnswer3] = useState("")
+  let [answer4, setAnswer4] = useState("")
+  let [correctAnswer, setCorrectAnswer] = useState("")
+  let [randomColor, setRandomColor] = useState("")
+  let [savedGames, setSavedGames]= useState([])
+
   const userData = props.user ? (
     <div classNameName="text-center pt-4">
       <h1>Profile</h1>
@@ -29,18 +42,6 @@ const Profile = (props) => {
       </div>
     )
   }
-
-  let [questionNum, setQuestionNum] = useState(1) //Starts at two because question 1 is already present
-  let [questionsArray, setQuestionsArray] = useState([])
-  let [quizTitle, setQuizTitle] = useState("")
-  let [question, setQuestion] = useState("")
-  let [answer1, setAnswer1] = useState("")
-  let [answer2, setAnswer2] = useState("")
-  let [answer3, setAnswer3] = useState("")
-  let [answer4, setAnswer4] = useState("")
-  let [correctAnswer, setCorrectAnswer] = useState("")
-  let [randomColor, setRandomColor] = useState("")
-  let [savedGames, setSavedGames]= useState([])
 
   const handleQuizTitle = (e) => {
     setQuizTitle(e.target.value)
@@ -77,9 +78,9 @@ const Profile = (props) => {
       answers: [answer1, answer2, answer3, answer4],
       correct: correctAnswer,
     }
-    console.log(questionObject)
-    setQuestionsArray([...questionsArray, questionObject])
-    console.log(questionsArray)
+    let temp = questionsArray
+    temp.push(questionObject)
+    setQuestionsArray(temp)
   }
 
   function addQuestion() {
