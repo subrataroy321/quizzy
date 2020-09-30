@@ -14,6 +14,7 @@ import Signin from "./components/Signin"
 import Host from "./components/host/Host"
 import HostGame from "./components/host/HostGame"
 import Player from "./components/player/Player"
+import SavedGames from "./components/SavedGames"
 
 const PrivateRoute = ({component: Component, ...rest}) => {
   const user = localStorage.getItem('jwtToken')
@@ -70,6 +71,7 @@ function App() {
           <Route path='/register' component={Register}/>
           <Route path='/about' component={About}/>
           <PrivateRoute path='/profile' component={Profile} user={currentUser} />
+          <PrivateRoute path='/savedQuizzys' component={SavedGames} user={currentUser}/>
           <Route path='/player' component={Player} />
           <Route path='/host' component={Host} />
           <Route path='/hostgame' component={HostGame} />
