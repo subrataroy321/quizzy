@@ -4,14 +4,13 @@ import socketIOClient from "socket.io-client"
 const ENDPOINT = process.env.REACT_APP_SERVER_URL
 const socket = socketIOClient(ENDPOINT)
 var urlParams = new URLSearchParams(window.location.search)
-var params = {id: urlParams.get('id')}
 
 const Host = () => {
     let [players, setPlayers] = useState('')
     let [gamePin, setGamePin] = useState('')
     
     socket.on('connect', function() {
-        console.log(params)
+        var params = {id: urlParams.get('id')}
         socket.emit('host-join', params)
     })
 
@@ -37,7 +36,7 @@ const Host = () => {
 
     // when server starts the game change the href
     socket.on('gameStarted', function(id){
-        window.location.href = "/host/game/?id" + id
+        window.location.href = "/hostgame/?id=" + id
     })
 
     socket.on('noGameFound', function(){
