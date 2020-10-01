@@ -1,4 +1,4 @@
-#answer1{
+#hostanswer1{
     background-color: #4CAF50;
     margin: auto;
     padding: 30px 20px;
@@ -6,7 +6,7 @@
     font-family: 'Raleway', sans-serif;
     font-size: 20px;
 }
-#answer2{
+#hostanswer2{
     background-color: #f94a1e;
     margin: auto;
     padding: 30px 20px;
@@ -14,7 +14,7 @@
     font-family: 'Raleway', sans-serif;
     font-size: 20px;
 }
-#answer3{
+#hostanswer3{
     background-color: #3399ff;
     margin: auto;
     padding: 30px 20px;
@@ -22,7 +22,7 @@
     font-family: 'Raleway', sans-serif;
     font-size: 20px;
 }
-#answer4{
+#hostanswer4{
     background-color: #ff9933;
     margin: auto;
     padding: 30px 20px;
@@ -85,4 +85,30 @@
     font-size: 35px;
     color: #3399ff;
     display: none;
+}
+
+.square{
+    border: none;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: none;
+    font-size: 16px;
+    margin: 4px 2px;
+    width: 70px;
+    height: 0px;
+    font-size: 20px;
+}
+
+#square1{
+    background-color: #4CAF50;
+}
+#square2{
+    background-color: #f94a1e;
+}
+#square3{
+    background-color: #3399ff;
+}
+#square4{
+    background-color: #ff9933;
 }
