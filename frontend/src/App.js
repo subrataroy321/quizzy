@@ -14,6 +14,7 @@ import Signin from "./components/Signin"
 import Host from "./components/host/Host"
 import HostGame from "./components/host/HostGame"
 import Player from "./components/player/Player"
+import PlayerGame from "./components/player/PlayerGame"
 import SavedGames from "./components/SavedGames"
 
 const PrivateRoute = ({component: Component, ...rest}) => {
@@ -73,6 +74,7 @@ function App() {
           <PrivateRoute path='/profile' component={Profile} user={currentUser} />
           <PrivateRoute path='/savedQuizzys' component={SavedGames} user={currentUser}/>
           <Route path='/player' component={Player} />
+          <Route path='/playergame' component={PlayerGame} />
           <Route path='/host' component={Host} />
           <Route path='/hostgame' component={HostGame} />
           <Route exact path="/" component={Welcome} />
