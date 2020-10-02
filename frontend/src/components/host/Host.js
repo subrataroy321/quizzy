@@ -19,10 +19,9 @@ const Host = () => {
     })
 
     socket.on('updatePlayerLobby', function(data) {
-        setPlayers('')
-        
+        setPlayers('')        
         for (let i = 0; i < data.length; i++){
-            setPlayers(`${players}${data[i].name}\n`)
+            setPlayers(`${data[i].name}\n`)
         }
     })
 
@@ -45,12 +44,12 @@ const Host = () => {
 
     return (
         <div className="host">
-            <button id = "cancel" onClick = {endGame}>Cancel Game</button>
-            <h2 id = "title">Join this Game using the Game Pin: </h2>
+            <h2 id = "hostTitle">Join this Game using the Game Pin: </h2>
             <h1 id = "gamePinText">{gamePin}</h1>
-            <textarea style = {{ width: '700px', height: '500px'}} readOnly id = "players" value = {players}></textarea>
+            <textarea readOnly id = "players" value = {players}></textarea>
             <br/>
             <button id = 'start' onClick = {startGame}>Start Game</button>
+            <button id = "cancel" onClick = {endGame}>Cancel Game</button>
         </div>
     )
 }
