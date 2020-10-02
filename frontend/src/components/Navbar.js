@@ -1,12 +1,13 @@
 import React from "react"
+import logo from '../assets/quizzy_logo.png'
 import { NavLink, Link } from "react-router-dom"
 
 const Navbar = (props) => {
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark" >
       <div className="container">
         <Link className="navbar-brand" to="/">
-          Quizzy
+          <img src={logo} className="logo" style={{height: '100px' }} alt='Logo'/>
         </Link>
         <button
           className="navbar-toggler"
@@ -20,7 +21,7 @@ const Navbar = (props) => {
           <span className="navbar-toggle-icon"></span>
         </button>
 
-        <div className="collapse navbar-collapse" id="navbarsExample07">
+        <div className="navbar-collapse" id="navbarsExample07">
           <ul className="navbar-nav mr-auto">
             <li className="nav-item">
               <NavLink className="nav-link" to="/">
@@ -35,6 +36,11 @@ const Navbar = (props) => {
           </ul>
           {props.isAuth ? (
             <ul className="navbar-nav ml-auto">
+              <li className="nav-item">
+                <a className="nav-link" href="/savedQuizzys">
+                  Saved Quizzy's
+                </a>
+              </li>
               <li className="nav-item">
                 <NavLink className="nav-link" to="/profile">
                   Profile
