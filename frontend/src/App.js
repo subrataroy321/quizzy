@@ -75,8 +75,8 @@ function App() {
           <PrivateRoute path='/savedQuizzys' component={SavedGames} user={currentUser}/>
           <Route path='/player' component={Player} />
           <Route path='/playergame' component={PlayerGame} />
-          <Route path='/host' component={Host} />
-          <Route path='/hostgame' component={HostGame} />
+          <PrivateRoute path='/host' component={Host} />
+          <PrivateRoute path='/hostgame' component={HostGame} />
           <Route exact path="/" component={Welcome} />
         </Switch>
       </div>

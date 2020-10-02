@@ -4,9 +4,13 @@
 html {
   position: relative;
   min-height: 100%;
+  color: white;
 }
 body {
   margin-bottom: 60px; /* Margin bottom by footer height */
+  color: white;
+  font-family: 'Raleway', sans-serif;
+  text-align: center;
 }
 .footer {
   position: absolute;
