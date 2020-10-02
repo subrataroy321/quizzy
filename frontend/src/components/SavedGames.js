@@ -9,9 +9,9 @@ const SavedGames = (props) => {
     socket.on('connect', function(){
         socket.emit('requestDbNames', props.user.id);//Get database names to display to user
     });
-
+    
     socket.on("gameNamesData", function(data) {
-    setSavedGames(data)
+        setSavedGames(data)
     })
 
     return (
