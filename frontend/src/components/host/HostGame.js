@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './HostGame.css'
 import socketIOClient from "socket.io-client"
 const ENDPOINT = process.env.REACT_APP_SERVER_URL
@@ -15,12 +15,13 @@ const HostGame = () => {
     let [correctAnswer, setCorrectAnswer] = useState("")
     let [playerAnswered, setPlayerAnswered] = useState("")
     let [playersInGame, setPlayersInGame] = useState("")
-    let [time, setTime] = useState(60)
-    let [showQuestion, setShowQuestion] = useState('')
-    let [showQuestionData, setShowQuestionData] = useState('')
-    let [showGraph, setShowGraph] = useState('')
-    let [showNextB, setShowNextB] = useState('')
-    let [podium, setPodium] = useState('')
+    let [time, setTime] = useState(30)
+    let [showQuestion, setShowQuestion] = useState('block')
+    let [showQuestionData, setShowQuestionData] = useState('block')
+    let [showGraph, setShowGraph] = useState('none')
+    let [showNextB, setShowNextB] = useState('none')
+    let [showEndGB, setShowEndGB] = useState('none')
+    let [podium, setPodium] = useState('none')
     let [ans1, setAns1] = useState("")
     let [ans2, setAns2] = useState("")
     let [ans3, setAns3] = useState("")
@@ -35,6 +36,8 @@ const HostGame = () => {
     let [winnerScore3, setWinnerScore3] = useState('')
     let [winnerScore4, setWinnerScore4] = useState('')
     let [winnerScore5, setWinnerScore5] = useState('')
+    let [message, setMessage] = useState('')
+    let [topPlayers, setTopPlayers] = useState('')
     let timer
 
     socket.on('connect', function() {
@@ -47,7 +50,6 @@ const HostGame = () => {
     // });
 
     socket.on('gameQuestions', function(data) {
-        console.log(data)
         setShowQuestion('block')
         setShowQuestionData('block')
         setShowGraph('none')
@@ -61,7 +63,7 @@ const HostGame = () => {
         setCorrectAnswer(data.correct)
         setPlayerAnswered(data.playerAnswered)
         setPlayersInGame(data.palyersInGame)
-        updateTimer()
+        setTime(20)
     })
 
     socket.on('updatePlayerAnswered', function(data) {
@@ -80,13 +82,25 @@ const HostGame = () => {
         
         
         if(correct === 1) {
-            setAnswer1(`&#10004 ${answer1}`)
+            setAnswer1(`✔ ${answer1}`)
+            setAnswer2(`✘ ${answer2}`)
+            setAnswer3(`✘ ${answer3}`)
+            setAnswer4(`✘ ${answer4}`)
         }else if(correct === 2) {
-            setAnswer2(`&#10004 ${answer2}`)
+            setAnswer1(`✘ ${answer1}`)
+            setAnswer2(`✔ ${answer2}`)
+            setAnswer3(`✘ ${answer3}`)
+            setAnswer4(`✘ ${answer4}`)
         }else if(correct === 3) {
-            setAnswer3(`&#10004 ${answer3}`)
+            setAnswer1(`✘ ${answer1}`)
+            setAnswer2(`✘ ${answer2}`)
+            setAnswer3(`✔ ${answer3}`)
+            setAnswer4(`✘ ${answer4}`)
         }else if(correct === 4) {
-            setAnswer4(`&#10004 ${answer4}`)
+            setAnswer1(`✘ ${answer1}`)
+            setAnswer2(`✘ ${answer2}`)
+            setAnswer3(`✘ ${answer3}`)
+            setAnswer4(`✔ ${answer4}`)
         }
 
         // find the which answer is selected most by players
@@ -118,41 +132,76 @@ const HostGame = () => {
         setShowNextB('none')
         setShowGraph('none')
         setShowQuestion('block')
-        setTime(60)
+        //setTime(60)
         socket.emit('nextQuestion')
     }
 
-    function updateTimer(){
-        //setTime(60)
-        timer = setInterval(function(){
-            console.log(time)
-            let newTime = parseInt(time) - 1
-            console.log(newTime)
-            setTime(newTime)
-            console.log(time)
-            if(time === 0) {
-                socket.emit('timeUp')
-            }
-        }, 1000)
-
-    }
+    useEffect(() => {
+        if(time === 20) {
+            timer = setInterval(() => {
+                setTime(time => time - 1)
+            } , 1000)
+        } else if (time === 0) {
+            socket.emit('timeUp')
+        }
+    }, [time])
 
     socket.on('GameOver', function(data){
         setShowNextB('none')
+        setShowEndGB('block')
         setShowGraph('none')
         setShowQuestion('none')
         setShowQuestionData('none')
-        setPodium('block')
-        setWinner1(data.num1)
-        setWinner2(data.num2)
-        setWinner3(data.num3)
-        setWinner4(data.num3)
-        setWinner5(data.num5)
-        setWinnerScore1(data.score1)
-        setWinnerScore2(data.score2)
-        setWinnerScore3(data.score3)
-        setWinnerScore4(data.score3)
-        setWinnerScore5(data.score5)
+        setMessage('GAME OVER')
+        if (!data.num1) {
+            setTopPlayers('NO PLAYERS JOINED THE GAME')
+        }
+        if (data.num1) {
+            setPodium('block')
+            setTopPlayers('Top 5 Players')
+            setWinner1(data.num1)
+            setWinnerScore1(data.score1)
+        } else if (data.num2) {
+            setPodium('block')
+            setTopPlayers('Top 5 Players')
+            setWinner1(data.num1)
+            setWinner2(data.num2)
+            setWinnerScore1(data.score1)
+            setWinnerScore2(data.score2)
+        } else if (data.num3) {
+            setPodium('block')
+            setTopPlayers('Top 5 Players')
+            setWinner1(data.num1)
+            setWinner2(data.num2)
+            setWinner3(data.num3)
+            setWinnerScore1(data.score1)
+            setWinnerScore2(data.score2)
+            setWinnerScore3(data.score3)
+        } else if (data.num4) {
+            setPodium('block')
+            setTopPlayers('Top 5 Players')
+            setWinner1(data.num1)
+            setWinner2(data.num2)
+            setWinner3(data.num3)
+            setWinner4(data.num4)
+            setWinnerScore1(data.score1)
+            setWinnerScore2(data.score2)
+            setWinnerScore3(data.score3)
+            setWinnerScore4(data.score4)
+        } else if (data.num5) {
+            setPodium('block')
+            setTopPlayers('Top 5 Players')
+            setWinner1(data.num1)
+            setWinner2(data.num2)
+            setWinner3(data.num3)
+            setWinner4(data.num3)
+            setWinner5(data.num5)
+            setWinnerScore1(data.score1)
+            setWinnerScore2(data.score2)
+            setWinnerScore3(data.score3)
+            setWinnerScore4(data.score3)
+            setWinnerScore5(data.score5)
+        }
 
     })
 
@@ -170,7 +219,7 @@ const HostGame = () => {
                 <h4 id = "playersAnswered" >Players Answered: {playerAnswered} / {playersInGame}</h4>
                 <h3 id = "timerText" >Time Left:<span id = "num">{time}</span></h3>
             </div>
-            <div >
+            <div className="squareDiv">
                 <div className = "square" id = "square1" style={{display: `${showGraph}`, height: `${ans1}px`}}></div>
                 <div className = "square" id = "square2" style={{display: `${showGraph}`, height: `${ans2}px`}}></div>
                 <div className = "square" id = "square3" style={{display: `${showGraph}`, height: `${ans3}px`}}></div>
@@ -178,25 +227,26 @@ const HostGame = () => {
             </div>
             <div style={{display: `${showQuestionData}`}}>
                 <h2 id = "question" >Q. {question}</h2>
-                <h3 id = "hostanswer1" >1. {answer1}</h3>
+                <div className = "hostanswer hostanswer1" ><span className="optionShape1 option">▲</span> <h3 className="option optionAnswer">{answer1}</h3></div>
                 <br/>
-                <h3 id = "hostanswer2" >2. {answer2}</h3>
+                <div className = "hostanswer hostanswer2" ><span className="optionShape2 option">◆</span> <h3 className="option optionAnswer">{answer2}</h3></div>
                 <br/>
-                <h3 id = "hostanswer3" >3. {answer3}</h3>
+                <div className = "hostanswer hostanswer3" ><span className="optionShape3 option">●</span> <h3 className="option optionAnswer">{answer3}</h3></div>
                 <br/>
-                <h3 id = "hostanswer4" >4. {answer4}</h3>
+                <div className = "hostanswer hostanswer4" ><span className="optionShape4 option">◼</span><h3 className="option optionAnswer">{answer4}</h3></div>
                 <br/>
                 <button onClick = {nextQuestion} id = "nextQButton" style={{display: `${showNextB}`}} >Next Question</button>
             </div>
-                
+            <h3 id = "winnerTitle">{message}</h3>
+            <h2 id = "winnerTitle" >{topPlayers}</h2>
             <div style={{display: `${podium}`}}>
-                <h2 id = "winnerTitle" >Top 5 Players</h2>
-                <h3 id = "winner1" >1. {winner1} (Score: {winnerScore1})</h3>
-                <h3 id = "winner2" >2. {winner2} (Score: {winnerScore2})</h3>
-                <h3 id = "winner3" >3. {winner3} (Score: {winnerScore3})</h3>
-                <h3 id = "winner4" >4. {winner4} (Score: {winnerScore4})</h3>
-                <h3 id = "winner5" >5. {winner5} (Score: {winnerScore5})</h3>
+                <h3 id = "winner" >1. {winner1} (Score: {winnerScore1})</h3>
+                <h3 id = "winner" >2. {winner2} (Score: {winnerScore2})</h3>
+                <h3 id = "winner" >3. {winner3} (Score: {winnerScore3})</h3>
+                <h3 id = "winner" >4. {winner4} (Score: {winnerScore4})</h3>
+                <h3 id = "winner" >5. {winner5} (Score: {winnerScore5})</h3>
             </div>
+                <a id="goBack" style={{display: `${showEndGB}`}} href="/profile">END GAME</a>
         </div>
     )
 }

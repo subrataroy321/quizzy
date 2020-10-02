@@ -1,24 +1,51 @@
 .profile {
   text-align: center;
   padding-bottom: 50px;
+  font-size: 25px;
+}
+
+.profile button{
+  width: 40%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+  font-size: 25px;
+  background-color: #3A3B3A;
+  font-family: 'Raleway', sans-serif;
+}
+
+.profileTitle {
+  margin-bottom: 50px;
+  font-size: 50px;
 }
 
 .profileData {
-  margin-bottom: 50px;
+  margin-bottom: 20px;
+  font-size: 30px;
 }
 
 #question-field {
   border-style: groove;
   border-width: 1px;
-  padding: 10px;
+  padding-top: 30px;
+  padding-bottom: 30px;
 }
 
 .question {
-  width: 500px;
+  width: 84%;
 }
 
 .answer {
-  width: 200px;
+  width: 35%;
+  margin-left: 7px;
+  margin-right: 12px;
 }
 
 .correct {

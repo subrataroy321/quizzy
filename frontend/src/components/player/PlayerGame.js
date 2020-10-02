@@ -90,14 +90,14 @@ const PlayerGame = () => {
             <div id = "stats">
                 <h4 id = "nameText">Name: {name}</h4>
                 <h4 id = "scoreText">Score: {score}</h4>
-                <h4 id = "rankText"></h4>
             </div>
             <h2 id = "message">{message}</h2>
-            <button onClick = {()=> answerSubmitted(1)} id = "playeranswer1" style={{visibility: `${visibility}`}} className = "button"></button>
-            <button onClick = {() => answerSubmitted(2)} id = "playeranswer2" style={{visibility: `${visibility}`}} className = "button"></button>
-            <br/>
-            <button onClick = {() => answerSubmitted(3)} id = "playeranswer3" style={{visibility: `${visibility}`}} className = "button"></button>
-            <button onClick = {() => answerSubmitted(4)} id = "playeranswer4" style={{visibility: `${visibility}`}} className = "button"></button>
+            <div className="playerOptions">
+                <button onClick = {()=> answerSubmitted(1)} id = "playeranswer1" style={{visibility: `${visibility}`}} className = "button"><span id="optionShape1">▲</span></button>
+                <button onClick = {() => answerSubmitted(2)} id = "playeranswer2" style={{visibility: `${visibility}`}} className = "button"><span id="optionShape2">◆</span></button>
+                <button onClick = {() => answerSubmitted(3)} id = "playeranswer3" style={{visibility: `${visibility}`}} className = "button"><span id="optionShape3">●</span></button>
+                <button onClick = {() => answerSubmitted(4)} id = "playeranswer4" style={{visibility: `${visibility}`}} className = "button"><span id="optionShape4">◼</span></button>
+            </div>
         </div>
     )
 }

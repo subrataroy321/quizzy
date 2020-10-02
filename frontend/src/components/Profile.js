@@ -1,11 +1,13 @@
 import "./Profile.css"
 import React, { useState, useEffect } from "react"
+import {useAlert} from 'react-alert'
 import { Link } from "react-router-dom"
 import socketIOClient from "socket.io-client"
 const ENDPOINT = process.env.REACT_APP_SERVER_URL
 const socket = socketIOClient(ENDPOINT)
 
 const Profile = (props) => {
+  const alert = useAlert()
 
   let [questionNum, setQuestionNum] = useState(1) //Starts at two because question 1 is already present
   let [questionsArray, setQuestionsArray] = useState([])
@@ -20,12 +22,12 @@ const Profile = (props) => {
 
   const userData = props.user ? (
     <div classNameName="text-center pt-4">
-      <h1>Profile</h1>
-      <p>
+      <h1 className="profileTitle">Profile</h1>
+      <p className="profileData">
         <strong>Name:</strong> {props.user.name}
-      </p>
-      <p>
+        <span style={{ marginLeft: '2rem' }} > 
         <strong>Email:</strong> {props.user.email}
+        </span>
       </p>
     </div>
   ) : (
@@ -116,6 +118,13 @@ const Profile = (props) => {
     window.location.href = "../../host/?id=" + data
   })
 
+  function checkCorrectAnswer() {
+    if(correctAnswer <= 0 || correctAnswer > 4) {
+      alert.show('Correct Answer must be between 1 to 4')
+      setCorrectAnswer('')
+    }
+  }
+
 
   useEffect(() => {
     chooseRandomColor()
@@ -123,7 +132,7 @@ const Profile = (props) => {
 
   return (
     <div className="profile">
-      <div className="profileData">{props.user ? userData : errorDiv()}</div>
+      <div>{props.user ? userData : errorDiv()}</div>
       <a href="/savedQuizzys"><button>Saved Quizzes</button></a>
       <h1 id="title">Quizzy Creator Studio</h1>
       <div className="form-field">
@@ -150,7 +159,7 @@ const Profile = (props) => {
         })}
       </div>
       <br />
-      <div style={{ backgroundColor: randomColor }}>
+      <div style={{ backgroundColor: randomColor, paddingBottom: '15px' }}>
         <div id="allQuestions">
           <div id="question-field">
             <label>Question 1: </label>
@@ -161,6 +170,7 @@ const Profile = (props) => {
               onChange={handleQuestion}
               value={question}
               autoFocus
+              required
             />
             <br />
             <br />
@@ -172,7 +182,9 @@ const Profile = (props) => {
               onChange={handleAnswer1}
               value={answer1}
               autoFocus
+              required
             />
+            <span> </span>
             <label>Answer 2: </label>
             <input
               id="1a2"
@@ -181,6 +193,7 @@ const Profile = (props) => {
               onChange={handleAnswer2}
               value={answer2}
               autoFocus
+              required
             />
             <br />
             <label>Answer 3: </label>
@@ -191,7 +204,9 @@ const Profile = (props) => {
               onChange={handleAnswer3}
               value={answer3}
               autoFocus
+              required
             />
+            <span> </span>
             <label>Answer 4: </label>
             <input
               id="1a4"
@@ -200,6 +215,7 @@ const Profile = (props) => {
               onChange={handleAnswer4}
               value={answer4}
               autoFocus
+              required
             />
             <br />
             <br />
@@ -211,6 +227,8 @@ const Profile = (props) => {
               onChange={handleCorrectAnswer}
               value={correctAnswer}
               autoFocus
+              onInput={checkCorrectAnswer}
+              required
             />
           </div>
         </div>
@@ -221,10 +239,10 @@ const Profile = (props) => {
         </div>
 
         <br />
-
         <button onClick={cancelQuiz}>
-          Cancel quiz and return to quiz selection
+          Cancel quiz and return to Home
         </button>
+        <p style={{ fontSize: '15px'}}><strong>Warning: </strong> This will remove all the questions data</p>
       </div>
       <br/>
     </div>
