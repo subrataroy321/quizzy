@@ -19,12 +19,26 @@ const Welcome = () => {
         <form action="/player/">
           <div className="form-field">
               <label id = "label">Display Name</label>
-              <input id = "name" type = "text" name="name" onChange={handleDisplayName} value={displayName}/>
+              <input 
+                id = "name" 
+                type = "text" 
+                name="name" 
+                onChange={handleDisplayName} 
+                value={displayName}
+                required
+              />
           </div>
           <br/>
           <div className="form-field">
               <label id = "label">Game Pin</label>
-              <input id = "pin" type="number" name="pin" onChange={handleGamePin} value={gamePin}/>
+              <input 
+                id = "pin" 
+                type="number" 
+                name="pin" 
+                onChange={handleGamePin} 
+                value={gamePin}
+                required
+              />
           </div>
           <br/>
           <div className="form-field">
