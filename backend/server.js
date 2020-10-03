@@ -1,12 +1,15 @@
+// import requireed node modules into variables
 require("dotenv").config()
 const express = require("express")
 const app = express()
 const cors = require("cors")
-const port = process.env.PORT || 8000
 const passport = require("passport")
 const users = require("./routes/api/users")
 const http = require("http")
 const socketIO = require("socket.io")
+const MongoClient = require("mongodb").MongoClient
+const port = process.env.PORT || 8000
+const MONGO_URI = process.env.MONGO_URI
 
 // import classes
 const { LiveGames } = require("./utils/liveGames")
@@ -23,36 +26,44 @@ app.use(passport.initialize())
 // importing passport file into server
 require("./config/passport")(passport)
 
+// create a socket server based on socket server
 const server = http.createServer(app)
 const io = socketIO(server)
-var games = new LiveGames()
-var players = new Players()
 
-var MongoClient = require("mongodb").MongoClient
-var MONGO_URI = process.env.MONGO_URI
+// define classes using contructor variable
+let games = new LiveGames()
+let players = new Players()
 
+// server main socket connection function for client connection
 io.on("connection", (socket) => {
-  console.log("New client connected")
 
-  socket.on("disconnect", () => {
-    console.log("Client disconnected")
-  })
-
+  // host lobby create function
   socket.on("host-join", (data) => {
 
+    // Connect mongodb Database
     MongoClient.connect(MONGO_URI, function (err, db) {
       if (err) throw err
-      var dbo = db.db("quizzy")
-      var query = { id: parseInt(data.id) }
-      dbo
-        .collection("quizzyGames")
-        .find(query)
-        .toArray(function (err, result) {
-          if (err) throw err
 
-          // if finds a game using the id passed in url
-          if (result[0] !== undefined) {
-            var gamePin = Math.floor(Math.random() * 89753 + 10000) // set game pin
+      let dbo = db.db("quizzy") // get the our database
+      let query = { id: parseInt(data.id) } // set query into query variable
+      
+      // make a query into database collection 
+      dbo.collection("quizzyGames").find(query).toArray(function (err, result) {
+        if (err) throw err
+
+        // if finds a game using the id passed in url
+        if (result[0] !== undefined) {
+
+          let currentGamePins = []
+          // set all Active Game Pins to currentGamePins
+          for (let i = 0; i < Object.keys(games.games).length; i++) {
+            currentGamePins.push(games.games[i].gamePin)
+          }
+          // get game pin
+          let gamePin = Math.floor(Math.random() * 89753 + 10000) // set game pin
+          // if the new Game Pin is not an active game
+          if (!currentGamePins.includes(gamePin)) {
+            // creates Game using the new GamePin
             games.addGame(gamePin, socket.id, false, {
               playersAnswered: 0,
               questionLive: false,
@@ -60,49 +71,69 @@ io.on("connection", (socket) => {
               question: 1,
             })
 
-            var game = games.getGame(socket.id)
-            socket.join(game.pin)
+            let game = games.getGame(socket.id) // gets that added game using socket id
+            socket.join(game.pin) // creates a socket room
             console.log("Game pin: ", game.pin)
 
+            // send game Pin to host
             socket.emit("showGamePin", {
               pin: game.pin,
             })
-          } else {
-            socket.emit("noGameFound")
+          } else { // else game pin active, send host to make another request
+            socket.emit("requestAgain")
           }
-          db.close()
-        })
+        } else { // else no game in database with that id
+          socket.emit("noGameFound")
+        }
+        db.close()
+      })
     })
   })
 
-  socket.on('host-join-game', (data) => {
-    var oldHostId = data.id
-    var game = games.getGame(oldHostId)
-    if(game) {
+  // host start a game
+  socket.on("host-join-game", (data) => {
+    let game = games.getGame(data.id) // gets the game
+
+    if (game) {
       game.hostId = socket.id
       socket.join(game.pin)
-      var playerData = players.getPlayers(oldHostId)
-      for (let i = 0; i < Object.keys(players.players).length; i++){
-        if(players.players[i].hostId == oldHostId){
+      let playerData = players.getPlayers(data.id)
+
+      // sets gmae playes hostId to socket id
+      for (let i = 0; i < Object.keys(players.players).length; i++) {
+        if (players.players[i].hostId == data.id) {
           players.players[i].hostId = socket.id
         }
       }
-      var gameId = game.gameData.gameid
-      MongoClient.connect(MONGO_URI, function(err, db) {
+      
+      let gameId = game.gameData.gameid // get game id
+
+      // connect to mongodb
+      MongoClient.connect(MONGO_URI, function (err, db) {
         if (err) throw err
 
-        var dbo = db.db('quizzy')
-        dbo.collection('quizzyGames').find({id: parseInt(gameId)}).toArray(function(err,res) {
-          if (err) throw err;
-          
-          var question = res[0].questions[0].question;
-          var answer1 = res[0].questions[0].answers[0];
-          var answer2 = res[0].questions[0].answers[1];
-          var answer3 = res[0].questions[0].answers[2];
-          var answer4 = res[0].questions[0].answers[3];
-          var correctAnswer = res[0].questions[0].correct;
+        let dbo = db.db("quizzy")
+        let query = {id: parseInt(gameId)}
 
-          socket.emit('gameQuestions', {
+        // make a query to game collections
+        dbo.collection("quizzyGames").find(query).toArray(function (err, res) {
+          if (err) throw err
+
+          // set question data to variable
+          let question = res[0].questions[0].question
+          let answer1 = res[0].questions[0].answers[0]
+          let answer2 = res[0].questions[0].answers[1]
+          let answer3 = res[0].questions[0].answers[2]
+          let answer4 = res[0].questions[0].answers[3]
+          let correctAnswer = res[0].questions[0].correct
+          let totalQuestions = res[0].questions.length
+          let gameTitle = res[0].name
+
+          // send question data to host
+          socket.emit("gameQuestions", {
+            gameTitle: gameTitle,
+            totalQuestions: totalQuestions,
+            questionNum: game.gameData.question,
             q1: question,
             a1: answer1,
             a2: answer2,
@@ -110,163 +141,233 @@ io.on("connection", (socket) => {
             a4: answer4,
             correct: correctAnswer,
             playersInGame: playerData.length
-          });
-          db.close();
-        }) 
+          })
+          db.close()
+        })
       })
 
-      io.to(game.pin).emit('gameStartedPlayer')
-      game.gameData.questionLive = true;
-    } else {
-      socket.emit('noGameFound')
+      // send request to game start to all game pin
+      io.to(game.pin).emit("gameStartedPlayer")
+      game.gameData.questionLive = true
+    } else { // if no game founds
+      socket.emit("noGameFound")
     }
   })
 
-  socket.on('player-join', function(params) {
+  // player wants to join a game and send player to waiting room
+  socket.on("player-join", function (params) {
     let gameFound = false
-    
-    for( let i = 0; i < games.games.length; i++){
-      if(params.pin == games.games[i].pin){
-        console.log('Player connected to game');
-        var hostId = games.games[i].hostId
-        players.addPlayer(hostId, socket.id, params.name, {score: 0, answer: 0})
+    for (let i = 0; i < games.games.length; i++) {
+      // check if players matches a game pin and game is not active
+      if (params.pin == games.games[i].pin && games.games[i].gameLive === false) {
+        console.log("Player connected to game")
+        let hostId = games.games[i].hostId
+
+        //add that player
+        players.addPlayer(hostId, socket.id, params.name, {
+          score: 0,
+          answer: 0,
+        })
+
+        // joins that socket room
         socket.join(params.pin)
 
-        var playersInGame = players.getPlayers(hostId)
-        io.to(params.pin).emit('updatePlayerLobby', playersInGame)
+        let playersInGame = players.getPlayers(hostId) // gets all the players
+
+        // send request to update player lobby to that game pin
+        io.to(params.pin).emit("updatePlayerLobby", playersInGame)
         gameFound = true
       }
     }
 
-    if(gameFound == false){
-      socket.emit('noGamesFound')
+    // if no game found with that pin
+    if (gameFound == false) {
+      socket.emit("noGamesFound")
     }
-
   })
 
-  socket.on('player-join-game', function(data){
-    var player = players.getPlayer(data.id)
-    console.log(player)
-    if(player) {
-      var game = games.getGame(player.hostId)
-      socket.join(game.pin)
-      player.playerId = socket.id
+  // function to send player from waiting room to game state
+  socket.on("player-join-game", function (data) {
+    let player = players.getPlayer(data.id) // get the player user player socket.id
 
-      var playerData = players.getPlayers(game.hostId)
-      socket.emit('playerGameData', playerData)
+    if (player) { // check if players exists
+      let game = games.getGame(player.hostId) // get game using player hostId
+      socket.join(game.pin) // joins the room 
+      player.playerId = socket.id // set playerId to current socket.id
+
+      let playerData = players.getPlayers(game.hostId) // get players data using game hostId
+      // send player data
+      socket.emit("playerGameData", playerData)
+    } else { // in case an error
+      socket.emit("noGameFound")
+    }
+  })
+
+  // when host or player leaves the game
+  socket.on("disconnect", function () {
+    let game = games.getGame(socket.id) //Finding game with socket.id
+    //If a game hosted by that id is found, the socket disconnected is a host
+    if (game) {
+      //Checking to see if host was disconnected or was sent to game view
+      if (game.gameLive == false) {
+        games.removeGame(socket.id) //Remove the game from games class
+        console.log("Game ended with pin:", game.pin)
+        let playersToRemove = players.getPlayers(game.hostId) //Getting all players in the game
+
+        //For each player in the game
+        for (let i = 0; i < playersToRemove.length; i++) {
+          players.removePlayer(playersToRemove[i].playerId) //Removing each player from player class
+        }
+
+        io.to(game.pin).emit("hostDisconnect") //Send player back to 'join' screen
+        socket.leave(game.pin) //Socket is leaving room
+      }
     } else {
-      socket.emit('noGameFound')
+      //No game has been found, so it is a player socket that has disconnected
+      let player = players.getPlayer(socket.id) //Getting player with socket.id
+      //If a player has been found with that id
+      if (player) {
+        let hostId = player.hostId //Gets id of host of the game
+        let game = games.getGame(hostId) //Gets game data with hostId
+        let pin = game.pin //Gets the pin of the game
+
+        if (game.gameLive == false) {
+          players.removePlayer(socket.id) //Removes player from players class
+          let playersInGame = players.getPlayers(hostId) //Gets remaining players in game
+
+          io.to(pin).emit("updatePlayerLobby", playersInGame) //Sends data to host to update screen
+          socket.leave(pin) //Player is leaving the room
+        }
+      }
     }
   })
 
-  socket.on('disconnect', function() {
+  // When Player chooses an answer
+  socket.on("playerAnswer", function (num) {
+    let player = players.getPlayer(socket.id)
+    let hostId = player.hostId
+    let playerNum = players.getPlayers(hostId)
+    let game = games.getGame(hostId)
 
-  })
-
-  socket.on('playerAnswer', function(num) {
-    var player = players.getPlayer(socket.id)
-    var hostId = player.hostId
-    var playerNum = players.getPlayers(hostId)
-    var game = games.getGame(hostId)
-    if(game.gameData.questionLive == true){
-      player.gameData.answer = num;
+    // if the game is live then set player answer
+    if (game.gameData.questionLive == true) {
+      player.gameData.answer = num
       game.gameData.playersAnswered += 1
 
-      var gameQuestion = game.gameData.question
-      var gameId = game.gameData.gameid
+      let gameQuestion = game.gameData.question
+      let gameId = game.gameData.gameid
 
-      MongoClient.connect(MONGO_URI, function(err, db){
-        var dbo = db.db('quizzy')
-        var query = {id: parseInt(gameId)}
-
-        dbo.collection('quizzyGames').find(query).toArray(function(err, res) {
+      // connect to mongo db
+      MongoClient.connect(MONGO_URI, function (err, db) {
+        let dbo = db.db("quizzy")
+        let query = { id: parseInt(gameId) }
+        
+        // makes a query to database collection
+        dbo.collection("quizzyGames").find(query).toArray(function (err, res) {
           if (err) throw err
 
-          var correctAnswer = res[0].questions[gameQuestion-1].correct
-          if(num == correctAnswer){
+          let correctAnswer = res[0].questions[gameQuestion - 1].correct // get question correct answer
+          // when player answer is correct
+          if (num == correctAnswer) {
             player.gameData.score += 100
-            io.to(game.pin).emit('getTime', socket.id)
-            socket.emit('answerResult', true)
+            io.to(game.pin).emit("getTime", socket.id) // request for host timer time from host
+            socket.emit("answerResult", true)
           }
 
-          if(game.gameData.playersAnswered == playerNum.length){
-            game.gameData.questionLive = false;
-            var playerData = player.getPlayers(game.hostId)
-            io.to(game.pin).emit('questionOver', playerData, correctAnswer)
-          } else {
-            io.to(game.pin).emit('updatePlayerAnswered', {
-              playersInGame: playerNum.length,
-              playersAnswered: game.gameData.playersAnswered
-            })
-          }
+          // vvvvvvvvv CONDITION TO STOP TIMER WHEN ALL PLAYERS ANSWERED vvvvvvvvvvv
+          // if (game.gameData.playersAnswered == playerNum.length) {
+          //   game.gameData.questionLive = false
+          //   let playerData = players.getPlayers(game.hostId)
+          //   io.to(game.pin).emit("questionOver", playerData, correctAnswer)
+          // } else {
+          // }
+          // /\/\/\/\/\//\/\\/\/\/\\//\\\///\/\/\/\/\/\
+
+          // send request 
+          io.to(game.pin).emit("updatePlayerAnswered", {
+            playersInGame: playerNum.length,
+            playersAnswered: game.gameData.playersAnswered,
+          })
           db.close()
-
         })
       })
-
     }
   })
 
-  socket.on('getScore', function(){
-    var player = players.getPlayer(socket.id);
-    socket.emit('newScore', player.gameData.score); 
-  });
-
-  socket.on('time', function(data) {
-    let time = data.time / 20
-    time = time * 100
-    let playerid = data.player
-    let player = players.getPlayer(playerid)
-    player.gameData.score += time;
+  // When user send a request to get current Score
+  socket.on("getScore", function () {
+    let player = players.getPlayer(socket.id)
+    socket.emit("newScore", player.gameData.score) // send score data to user
   })
 
-  socket.on('timeUp', function() {
-    let game = games.getGame(socket.id)
-    game.gameData.questionLive = false
-    let playerData = players.getPlayers(game.hostId)
+  // host send the time with player data and time to save it on the game
+  socket.on("time", function (data) {
+    let time = data.time / 20 // calculate players time ratio for score calculation
+    time = time * 100
+    let playerid = data.player
+    let player = players.getPlayer(playerid) // get a player using player ID 
+    player.gameData.score += time // set player score.
+  })
 
-    let gameQuestion = game.gameData.question
-    let gameid = game.gameData.gameid
-      MongoClient.connect(MONGO_URI, function(err, db) {
-        if (err) throw err;
+  // on hosts timer ends send the correct answer to all
+  socket.on("timeUp", function () {
+    let game = games.getGame(socket.id) // get the game using socket id
+    if (game) {
+      game.gameData.questionLive = false // set game question status to false
+      let playerData = players.getPlayers(game.hostId) // get all players using host id
 
-        let dbo = db.db('quizzy');
-        let query = {id: parseInt(gameid)}
-        dbo.collection('quizzyGames').find(query).toArray(function(err, res) {
+      let gameQuestion = game.gameData.question
+      let gameid = game.gameData.gameid
+
+      // connect to mongo db
+      MongoClient.connect(MONGO_URI, function (err, db) {
+        if (err) throw err
+
+        let dbo = db.db("quizzy")
+        let query = { id: parseInt(gameid) }
+        // makes a query to get the gamedata from database
+        dbo.collection("quizzyGames").find(query).toArray(function (err, res) {
           if (err) throw err
 
-          let correctAnswer = res[0].questions[gameQuestion - 1].correct
-          io.to(game.pin).emit('questionOver', playerData, correctAnswer)
+          let correctAnswer = res[0].questions[gameQuestion - 1].correct // get questions correct answer
+          io.to(game.pin).emit("questionOver", playerData, correctAnswer) // send to all players/clients
 
           db.close()
         })
       })
+    }
   })
 
-  socket.on('nextQuestion', function() {
-    let playerData = players.getPlayer(socket.id)
+  // gets next question from game questions
+  socket.on("nextQuestion", function () {
+    let playerData = players.getPlayers(socket.id)
 
-    for(let i = 0; Object.keys(players.players).length; i++) {
-      if (players.players[i].hostId == socket.id) {
-        player.players[i].gameData.answer = 0
+    for (let i = 0; i < Object.keys(players.players).length; i++) {
+      // changes games all players answer to 0
+      if (players.players[i].hostId === socket.id) {
+        players.players[i].gameData.answer = 0
       }
     }
 
-    let game = games.getGame(socket.id)
+    let game = games.getGame(socket.id) // gets the game 
     game.gameData.playersAnswered = 0
     game.gameData.questionLive = true
-    game.gameData.question +=1
+    game.gameData.question += 1
     let gameid = game.gameData.gameid
 
-    MongoClient.connect(MONGO_URI, function(err, res) {
+    // connecting to mongo db
+    MongoClient.connect(MONGO_URI, function (err, db) {
       if (err) throw err
 
-      let dbo = db.db('quizzy')
-      let query = {id: parseInt(gameid)}
-      dbo.collection('quizzyGames').find(query).toArray(function(err, res) {
+      let dbo = db.db("quizzy")
+      let query = { id: parseInt(gameid) }
+
+      // makes a query to the collection
+      dbo.collection("quizzyGames").find(query).toArray(function (err, res) {
         if (err) throw err
 
         if (res[0].questions.length >= game.gameData.question) {
+
           let questionNum = game.gameData.question
           questionNum = questionNum - 1
           let question = res[0].questions[questionNum].question
@@ -275,36 +376,42 @@ io.on("connection", (socket) => {
           let answer3 = res[0].questions[questionNum].answers[2]
           let answer4 = res[0].questions[questionNum].answers[3]
           let correctAnswer = res[0].questions[questionNum].correct
-          
-          socket.emit('gameQuestions', {
+          let totalQuestions = res[0].questions.length
+
+          // send all the question data to start the question again
+          socket.emit("gameQuestions", {
+            totalQuestions: totalQuestions,
+            questionNum: game.gameData.question,
             q1: question,
             a1: answer1,
             a2: answer2,
             a3: answer3,
             a4: answer4,
             correct: correctAnswer,
-            playersInGame: playerData.length
-          });
-          db.close();
+            playersInGame: playerData.length,
+          })
+
+          db.close()
         } else {
+
           let playersInGame = players.getPlayers(game.hostId)
-          let first = {name: "", score: 0}
-          let second = {name: "", score: 0}
-          let third = {name: "", score: 0}
-          let fourth = {name: "", score: 0}
-          let fifth = {name: "", score: 0}
-
+          let first = { name: "", score: 0 }
+          let second = { name: "", score: 0 }
+          let third = { name: "", score: 0 }
+          let fourth = { name: "", score: 0 }
+          let fifth = { name: "", score: 0 }
+          
+          // if there is no more questions get top five scored players
           for (let i = 0; i < playersInGame.length; i++) {
-            console.log(playersInGame[i].gameData.score)
 
-            if(playersInGame[i].gameData.score > fifth.score) {
-              if(playersInGame[i].gameData.score > fourth.score) {
-                if(playersInGame[i].gameData.score > third.score) {
-                  if(playersInGame[i].gameData.score > second.score) {
-                    if(playersInGame[i].gameData.score > first.score) {
+            if (playersInGame[i].gameData.score > fifth.score) {
+              if (playersInGame[i].gameData.score > fourth.score) {
+                if (playersInGame[i].gameData.score > third.score) {
+                  if (playersInGame[i].gameData.score > second.score) {
+                    if (playersInGame[i].gameData.score > first.score) {
                       // first place
-                      fifth.name = fouth.name
-                      fifth.score = fouth.score
+                      fifth.name = fourth.name
+                      fifth.score = fourth.score
 
                       fourth.name = third.name
                       fourth.score = third.score
@@ -316,11 +423,11 @@ io.on("connection", (socket) => {
                       second.score = first.score
 
                       first.name = playersInGame[i].name
-                      first.score = playersInGame[i].score
+                      first.score = playersInGame[i].gameData.score
                     } else {
                       // second place
-                      fifth.name = fouth.name
-                      fifth.score = fouth.score
+                      fifth.name = fourth.name
+                      fifth.score = fourth.score
 
                       fourth.name = third.name
                       fourth.score = third.score
@@ -329,37 +436,38 @@ io.on("connection", (socket) => {
                       third.score = second.score
 
                       second.name = playersInGame[i].name
-                      second.score = playersInGame[i].score
+                      second.score = playersInGame[i].gameData.score
                     }
                   } else {
                     // third place
-                    fifth.name = fouth.name
-                    fifth.score = fouth.score
+                    fifth.name = fourth.name
+                    fifth.score = fourth.score
 
                     fourth.name = third.name
                     fourth.score = third.score
 
                     third.name = playersInGame[i].name
-                    third.score = playersInGame[i].score
+                    third.score = playersInGame[i].gameData.score
                   }
                 } else {
                   // fourth place
-                  fifth.name = fouth.name
-                  fifth.score = fouth.score
+                  fifth.name = fourth.name
+                  fifth.score = fourth.score
 
                   fourth.name = playersInGame[i].name
-                  fourth.score = playersInGame[i].score
+                  fourth.score = playersInGame[i].gameData.score
                 }
               } else {
                 // fifth place
                 fifth.name = playersInGame[i].name
-                fifth.score = playersInGame[i].score
+                fifth.score = playersInGame[i].gameData.score
               }
             }
             // end of for
           }
 
-          io.to(game.pin).emit('GameOver', {
+          // tells host that game is over and send top five players
+          io.to(game.pin).emit("GameOver", {
             num1: first.name,
             num2: second.name,
             num3: third.name,
@@ -369,59 +477,74 @@ io.on("connection", (socket) => {
             score2: second.score,
             score3: third.score,
             score4: fourth.score,
-            score5: fifth.score
+            score5: fifth.score,
           })
         }
       })
     })
-    io.to(game.pin).emit('nextQuestionPlayer')
+
+    // tells all players that its next question
+    io.to(game.pin).emit("nextQuestionPlayer")
   })
 
-  socket.on('startGame', function() {
-    var game = games.getGame(socket.id)
-    game.gameLive = true
-    socket.emit('gameStarted', game.hostId)
+  // when host starts the game 
+  socket.on("startGame", function () {
+    let game = games.getGame(socket.id) // get the game using socket id
+    game.gameLive = true // set game status
+    socket.emit("gameStarted", game.hostId) // tell all game playes that game started
   })
 
-  socket.on('requestDbNames', function(userId) {
-    MongoClient.connect(MONGO_URI, function(err, db){
+  // when host user makes a request to get saved games
+  socket.on("requestDbNames", function (userId) {
+    // connect to mongo db
+    MongoClient.connect(MONGO_URI, function (err, db) {
       if (err) throw err
 
-      var dbo = db.db('quizzy')
-      dbo.collection('quizzyGames').find({userId: userId}).toArray(function(err, res) {
+      let dbo = db.db("quizzy")
+      let query = { userId: userId }
+
+      // makes a query for all saved games by user
+      dbo.collection("quizzyGames").find(query).toArray(function (err, res) {
         if (err) throw err
 
-        socket.emit('gameNamesData', res)
-        db.close();
+        socket.emit("gameNamesData", res) // send game Data 
+        db.close()
       })
     })
   })
 
+  // host creates a new quiz
   socket.on("newQuiz", function (data) {
-    console.log(data.questions)
+    // connect to mongo db
     MongoClient.connect(MONGO_URI, function (err, db) {
       if (err) throw err
-      var dbo = db.db("quizzy")
-      dbo
-        .collection("quizzyGames")
-        .find({})
-        .toArray(function (err, result) {
+
+      let dbo = db.db("quizzy")
+      // gets all the saved games for creating an id
+      dbo.collection("quizzyGames").find({}).toArray(function (err, result) {
+        if (err) throw err
+
+        let num = Object.keys(result).length
+        let newGameId = result[num - 1].id + 1
+        // set serialize id
+        if (num == 0) {
+          data.id = 1
+          num = 1
+        } else {
+          data.id = newGameId
+        }
+        let game = data
+
+        // adds to out game collection
+        dbo.collection("quizzyGames").insertOne(game, function (err, res) {
           if (err) throw err
-          var num = Object.keys(result).length
-          if (num == 0) {
-            data.id = 1
-            num = 1
-          } else {
-            data.id = result[num - 1].id + 1
-          }
-          var game = data
-          dbo.collection("quizzyGames").insertOne(game, function (err, res) {
-            if (err) throw err
-            db.close()
-          })
+
           db.close()
-          socket.emit("startGameFromCreator", num)
         })
+        db.close()
+
+        socket.emit("startGameFromCreator", newGameId) // sends host with host lobby after successful game creation
+      })
     })
   })
 })
