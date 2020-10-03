@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import './PlayerGame.css'
 import socketIOClient from "socket.io-client"
 const ENDPOINT = process.env.REACT_APP_SERVER_URL
@@ -14,11 +14,13 @@ const PlayerGame = () => {
     let playerAnswered = false
     let correct = false
     
-    socket.on('connect', function() {
-        let params = {id: urlParams.get('id')}
-        socket.emit('player-join-game', params);
-        setVisibility('visible')
-    })
+    useEffect(()=> {
+        socket.on('connect', function() {
+            let params = {id: urlParams.get('id')}
+            socket.emit('player-join-game', params);
+            setVisibility('visible')
+        })
+    }, [])
 
     socket.on('noGameFound', function(){
         window.location.href = '../../'; 
@@ -31,7 +33,7 @@ const PlayerGame = () => {
             socket.emit('playerAnswer', num)
 
             setVisibility('hidden')
-            setMessage('Answer Submitted! Waiting on other players...')
+            setMessage('Answer Submitted!\n Waiting on other players...')
         }
     }
 
@@ -45,9 +47,11 @@ const PlayerGame = () => {
         if (correct === true) {
             setBackgroundColor('#4CAF50')
             setMessage('Correct')
+            setVisibility('hidden')
         } else {
-            setBackgroundColor('f94a1e')
+            setBackgroundColor('#f94a1e')
             setMessage('Incorrect')
+            setVisibility('hidden')
         }
         socket.emit('getScore')
     })
@@ -59,7 +63,7 @@ const PlayerGame = () => {
     socket.on('nextQuestionPlayer', function(){
         correct = false;
         playerAnswered = false;
-
+        setMessage('')
         setVisibility('visible')
         setBackgroundColor('transparent')
         
@@ -79,7 +83,7 @@ const PlayerGame = () => {
     });
 
     socket.on('GameOver', function(){
-        setBackgroundColor('#FFFFFF')
+        setBackgroundColor('transparent')
         setVisibility('hidden')
         setMessage('GAME OVER')
     })
@@ -92,11 +96,11 @@ const PlayerGame = () => {
                 <h4 id = "scoreText">Score: {score}</h4>
             </div>
             <h2 id = "message">{message}</h2>
-            <div className="playerOptions">
-                <button onClick = {()=> answerSubmitted(1)} id = "playeranswer1" style={{visibility: `${visibility}`}} className = "button"><span id="optionShape1">▲</span></button>
-                <button onClick = {() => answerSubmitted(2)} id = "playeranswer2" style={{visibility: `${visibility}`}} className = "button"><span id="optionShape2">◆</span></button>
-                <button onClick = {() => answerSubmitted(3)} id = "playeranswer3" style={{visibility: `${visibility}`}} className = "button"><span id="optionShape3">●</span></button>
-                <button onClick = {() => answerSubmitted(4)} id = "playeranswer4" style={{visibility: `${visibility}`}} className = "button"><span id="optionShape4">◼</span></button>
+            <div className="playerOptions" style={{visibility: `${visibility}`}}>
+                <button onClick = {()=> answerSubmitted(1)} id = "playeranswer1"  className = "button"><span id="optionShape1">▲</span></button>
+                <button onClick = {() => answerSubmitted(2)} id = "playeranswer2" className = "button"><span id="optionShape2">◆</span></button>
+                <button onClick = {() => answerSubmitted(3)} id = "playeranswer3" className = "button"><span id="optionShape3">●</span></button>
+                <button onClick = {() => answerSubmitted(4)} id = "playeranswer4" className = "button"><span id="optionShape4">◼</span></button>
             </div>
         </div>
     )

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {useAlert} from 'react-alert'
 import './Player.css'
 import socketIOClient from "socket.io-client"
@@ -8,11 +8,12 @@ var urlParams = new URLSearchParams(window.location.search)
 
 const Player = () => {
     const alert = useAlert()
-    
-    socket.on('connect', function() {
-        var params = {name: urlParams.get('name'), pin: urlParams.get('pin')}
-        socket.emit('player-join', params)
-    })
+    useEffect(()=> {
+        socket.on('connect', function() {
+            var params = {name: urlParams.get('name'), pin: urlParams.get('pin')}
+            socket.emit('player-join', params)
+        })
+    }, [])
     
     socket.on('noGamesFound', function(){
         alert.show('No Games Found. Try Again!')

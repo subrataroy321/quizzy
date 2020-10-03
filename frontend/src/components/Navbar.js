@@ -37,14 +37,14 @@ const Navbar = (props) => {
           {props.isAuth ? (
             <ul className="navbar-nav ml-auto">
               <li className="nav-item">
-                <a className="nav-link" href="/savedQuizzys">
-                  Saved Quizzy's
+                <a className="nav-link" href="/createGame">
+                  Create a Quizzy
                 </a>
               </li>
               <li className="nav-item">
-                <NavLink className="nav-link" to="/profile">
+                <a className="nav-link" href="/profile">
                   Profile
-                </NavLink>
+                </a>
               </li>
               <li className="nav-item">
                 <span
