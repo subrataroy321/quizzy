@@ -1,5 +1,5 @@
 import './Host.css'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import socketIOClient from "socket.io-client"
 const ENDPOINT = process.env.REACT_APP_SERVER_URL
 const socket = socketIOClient(ENDPOINT)
@@ -8,22 +8,39 @@ var urlParams = new URLSearchParams(window.location.search)
 const Host = () => {
     let [players, setPlayers] = useState('')
     let [gamePin, setGamePin] = useState('')
+    let [lobbyData, setLobbyData] = useState([])
+
+    useEffect(() => {
+
+        socket.on('connect', function() {
+            var params = {id: urlParams.get('id')}
+            socket.emit('host-join', params)
+        })
+
+        socket.on('requestAgain', function() {
+            var params = {id: urlParams.get('id')}
+            socket.emit('host-join', params)
+        })
+
+        socket.on('showGamePin', function(data){
+            setGamePin(data.pin)
+        })
+
+        socket.on('updatePlayerLobby', function(data) {
+            setLobbyData(data)
+        })
+        
+    }, [])
     
-    socket.on('connect', function() {
-        var params = {id: urlParams.get('id')}
-        socket.emit('host-join', params)
-    })
 
-    socket.on('showGamePin', function(data){
-        setGamePin(data.pin)
-    })
-
-    socket.on('updatePlayerLobby', function(data) {
-        setPlayers('')        
-        for (let i = 0; i < data.length; i++){
-            setPlayers(`${data[i].name}\n`)
+    useEffect(()=> {
+        for (let i = 0; i < lobbyData.length; i++){
+            if (!players.includes(lobbyData[i].name)) {
+                setPlayers(`${players}${lobbyData[i].name}\n`)
+            }
         }
-    })
+    }, [lobbyData])
+    
 
     const startGame = () => {
         socket.emit('startGame')
