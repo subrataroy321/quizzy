@@ -1,0 +1,143 @@
+.hostanswer {
+    margin: auto;
+    height: 50%;
+    font-family: 'Raleway', sans-serif;
+    font-size: 20px;
+    display: grid;
+}
+
+.hostanswer1{
+    background-color: #4CAF50;
+    padding: 21px;
+    grid-template-columns: 1fr 5fr;
+}
+.hostanswer2{
+    background-color: #f94a1e;
+    padding: 3px;
+    padding-bottom: 5px;
+    grid-template-columns: 1.2fr 5fr;
+}
+.hostanswer3{
+    background-color: #3399ff;
+    padding: 3px;
+    padding-bottom: 5px;
+    grid-template-columns: 1.2fr 5fr;
+}
+.hostanswer4{
+    background-color: #ff9933;
+    padding: 15px;
+    grid-template-columns: 1fr 5fr;
+}
+
+#nextQButton{
+    width: 50%;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+    font-size: 20px;
+    background-color: #3A3B3A;
+    font-family: 'Raleway', sans-serif;
+}
+#question{
+    font-family: 'Raleway', sans-serif;
+    margin-bottom: 30px;
+}
+#timerText{
+    font-family: 'Raleway', sans-serif;
+}
+#num{
+    font-family: 'Tajawal', sans-serif;
+    font-size: 35px;
+}
+#playersAnswered{
+    font-family: 'Tajawal', sans-serif;
+}
+#questionNum{
+    font-family: 'Tajawal', sans-serif;
+}
+
+#winner{
+    font-family: 'Raleway', sans-serif;
+    text-align: center;
+    font-size: 30px;
+}
+
+#winnerTitle{
+    text-align: center;
+    font-family: 'Raleway', sans-serif;
+    font-size: 35px;
+    margin-bottom: 30px;
+}
+
+.square{
+    border: none;
+    padding: 1px 32px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 4px 2px;
+    width: 120px;
+    height: 0px;
+    font-size: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.squareDiv{
+    margin-bottom: 30px;
+}
+
+#square1{
+    background-color: #4CAF50;
+}
+#square2{
+    background-color: #f94a1e;
+}
+#square3{
+    background-color: #3399ff;
+}
+#square4{
+    background-color: #ff9933;
+}
+
+#goBack {
+    width: 50%;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: auto;
+    margin-left: auto;
+    margin-top: 100px;
+    font-size: 20px;
+    background-color: #3A3B3A;
+    font-family: 'Raleway', sans-serif;
+}
+
+.optionShape1 {
+    font-size: 32px;
+}
+.optionShape2 {
+    font-size: 55px;
+}
+.optionShape3 {
+    font-size: 55px;
+}
+.optionShape4 {
+    font-size: 40px;
+}
+.optionAnswer {
+    align-items: center;
+}
+
+.option {
+    margin: auto;
+}

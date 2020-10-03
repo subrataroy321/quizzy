@@ -1,3 +1,36 @@
 .host {
     text-align: center;
+    text-align: center;
+}
+
+.host button {
+    width: 30%;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    margin-right: 20px;
+    margin-left: 20px;
+    font-size: 20px;
+    background-color: #3A3B3A;
+}
+
+#hostTitle {
+    font-size: 40px;
+}
+
+#gamePinText {
+    margin-top: 25px;
+    font-size: 70px;
+    font-family: 'Tajawal', sans-serif;
+}
+
+#players {
+    width: 700px;
+    height: 500px;
+    text-align: center;
+    font-size: 20px;
 }
