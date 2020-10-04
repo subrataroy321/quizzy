@@ -19,22 +19,20 @@
     background-color: #864cbf;
   }
 }
-
 body {
   -webkit-animation: bgcolor 20s infinite;
   animation: bgcolor 10s infinite;
   -webkit-animation-direction: alternate;
   animation-direction: alternate;
 }
-
-#title{
-  font-family: 'Raleway', sans-serif;
+#title {
+  font-family: "Raleway", sans-serif;
   text-align: center;
   font-size: 50px;
   color: white;
 }
-#name{
-  font-family: 'Raleway', sans-serif;
+#name {
+  font-family: "Raleway", sans-serif;
   width: 50%;
   padding: 12px 0px;
   margin: 8px 0;
@@ -47,8 +45,8 @@ body {
   font-size: 20px;
   text-align: center;
 }
-#pin{
-  font-family: 'Tajawal', sans-serif;
+#pin {
+  font-family: "Tajawal", sans-serif;
   width: 50%;
   padding: 12px 0px;
   margin: 8px 0;
@@ -61,23 +59,23 @@ body {
   font-size: 20px;
   text-align: center;
 }
-#label{
+#label {
   display: block;
   text-align: center;
   font-size: 25px;
-  font-family: 'Raleway', sans-serif;
+  font-family: "Raleway", sans-serif;
   color: white;
 }
-#host{
+#host {
   color: white;
   text-decoration: none;
 }
-#host:hover{
-  text-decoration:underline;
+#host:hover {
+  text-decoration: underline;
 }
-#joinButton{
+#joinButton {
   width: 50%;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   padding: 14px 20px;
   margin: 8px 0;
@@ -88,6 +86,6 @@ body {
   margin-right: auto;
   margin-left: auto;
   font-size: 20px;
-  background-color: #3A3B3A;
-  font-family: 'Raleway', sans-serif;
+  background-color: #3a3b3a;
+  font-family: "Raleway", sans-serif;
 }
