@@ -1,0 +1,25 @@
+.savedGame {
+    padding-top: 20px;
+    padding-bottom: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    background-color: rgba(77, 75, 75, 0.377);
+    width: 50vw;
+}
+
+.savedGame a{
+    color: white;
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+#savedQuizzy h1 {
+    font-size: 50px;
+    margin-bottom: 30px;
+}
+
+.savedGame h3 {
+    font-size: 35px;
+}
