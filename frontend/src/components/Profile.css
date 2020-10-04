@@ -29,3 +29,28 @@
   margin-bottom: 20px;
   font-size: 30px;
 }
+
+#profileImage {
+  height: 200px;
+  width: 200px;
+  border: 4px solid;
+  border-radius: 10px;
+}
+
+#changeProfileImage {
+  font-size: 17px;
+  margin-bottom: 0;
+  color: white;
+}
+
+#changeProfileImage a{
+  color: white;
+}
+
+#editProfile {
+  font-size: 17px;
+}
+
+#editProfile a{
+  color: white;
+}

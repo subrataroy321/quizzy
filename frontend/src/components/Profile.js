@@ -1,26 +1,61 @@
 import "./Profile.css"
-import React, { useState, useEffect } from "react"
+import React, {useState} from "react"
+import placeHolder from '../assets/images/placeholder-male.jpg'
+import {Image, CloudinaryContext} from 'cloudinary-react';
 import { Link } from "react-router-dom"
-import socketIOClient from "socket.io-client"
-const ENDPOINT = process.env.REACT_APP_SERVER_URL
-const socket = socketIOClient(ENDPOINT)
 
 const Profile = (props) => {
-  let [showSavedQuizzy, setShowSavedQuizzy] = useState("none")
-  let [savedGames, setSavedGames] = useState([])
 
-  socket.on("connect", function () {
-    socket.emit("requestDbNames", props.user.id)
-  })
+  // state variables
+  let [profileImage, setProfileImage] = useState(placeHolder)
+  let [hasProfileImage, setHasProfileImage] = useState(false)
 
-  //Get database names to display to user
-  socket.on("gameNamesData", function (data) {
-    setSavedGames(data)
-  })
+  // cloudinary widget
+  var myWidget = window.cloudinary.createUploadWidget({
+    cloudName: "subrataroy", 
+    uploadPreset: "nh1ih0nx",
+    folder: 'quizzyProfilePhotos',
+    sources: [ 'local', 'url', 'camera', 'dropbox', 'facebook', 'instagram', 'google_drive']}, (error, result) => { 
+      if (!error && result && result.event === "success") { 
+        setProfileImage(result.info.public_id)
+        setHasProfileImage(true)
+      }
+    }
+  )
 
+  // useEffect(() => {
+  //   if(hasProfileImage) {
+        // TO DO
+  //   }
+  // }, [hasProfileImage])
+
+  function showWidget(widget) {
+    myWidget.open();
+  }
+
+  // user data to show
   const userData = props.user ? (
     <div className="text-center pt-4">
       <h1 className="profileTitle">Profile</h1>
+      <div style={{marginBottom: '30px'}}>
+        { 
+          hasProfileImage ? 
+          <CloudinaryContext cloudName="subrataroy">
+            <div>
+              <Image publicId={profileImage} id="profileImage" crop="scale" />
+            </div>
+          </CloudinaryContext>
+          :
+          <img src={profileImage} id="profileImage" alt="profile image"/>
+        }
+        <p id="changeProfileImage">
+          <a href="#" id="upload_widget"  onClick={showWidget}>Upload Profile Picture</a>
+          {/* <a href="#" >Change Profile Picture</a> */}
+        </p>
+        <p id="editProfile">
+          <a href="#" >Edit Profile</a>
+        </p>
+      </div>
       <p className="profileData">
         <strong>Name:</strong> {props.user.name}
       </p>
@@ -43,31 +78,15 @@ const Profile = (props) => {
     )
   }
 
-  function showQuizzy() {
-    if (showSavedQuizzy === "none") {
-      setShowSavedQuizzy("block")
-    } else {
-      setShowSavedQuizzy("none")
-    }
-  }
-
   return (
     <div className="profile">
       <div>{props.user ? userData : errorDiv()}</div>
       <a href="/createGame">
-        <button>Create Quizzes</button>
+        <button>Create Quizzy</button>
       </a>
-      <button onClick={showQuizzy}>Saved Quizzes</button>
-      <div style={{ display: `${showSavedQuizzy}` }}>
-        <h1>Saved Quizzy's</h1>
-        {savedGames.map((game, i) => {
-          return (
-            <a href={`/host/?id=${game.id}`} key={i}>
-              <h3>{game.name}</h3>
-            </a>
-          )
-        })}
-      </div>
+      <a href="/savedQuizzys">
+        <button>Saved Quizzy's</button>
+      </a>
     </div>
   )
 }
