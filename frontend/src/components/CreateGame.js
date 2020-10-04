@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react"
 import './CreateGame.css'
 import { useAlert } from "react-alert"
+import {Image, CloudinaryContext} from 'cloudinary-react';
 import socketIOClient from "socket.io-client"
 const ENDPOINT = process.env.REACT_APP_SERVER_URL
+const CLOUD_NAME = process.env.REACT_APP_CLOUD_NAME
+const CLOUD_PRESET = process.env.REACT_APP_CLOUD_PRESET
+const GOOGLE_SEARCH_API_KEY = process.env.REACT_APP_GOOGLE_SEARCH_API_KEY
 const socket = socketIOClient(ENDPOINT)
 
 const CreateGame = (props) => {
   const alert = useAlert()
 
+  // state variables
   let [questionNum, setQuestionNum] = useState(1) //Starts at two because question 1 is already present
   let [questionsArray, setQuestionsArray] = useState([])
   let [quizTitle, setQuizTitle] = useState("")
@@ -18,7 +23,9 @@ const CreateGame = (props) => {
   let [answer4, setAnswer4] = useState("")
   let [correctAnswer, setCorrectAnswer] = useState("")
   let [randomColor, setRandomColor] = useState("")
+  let [imageId, setImageId] = useState("")
 
+  // handles user inputs and set it to state variables
   const handleQuizTitle = (e) => {
     setQuizTitle(e.target.value)
   }
@@ -26,22 +33,46 @@ const CreateGame = (props) => {
   const handleQuestion = (e) => {
     setQuestion(e.target.value)
   }
+
   const handleAnswer1 = (e) => {
     setAnswer1(e.target.value)
   }
+
   const handleAnswer2 = (e) => {
     setAnswer2(e.target.value)
   }
+
   const handleAnswer3 = (e) => {
     setAnswer3(e.target.value)
   }
+
   const handleAnswer4 = (e) => {
     setAnswer4(e.target.value)
   }
+
   const handleCorrectAnswer = (e) => {
     setCorrectAnswer(e.target.value)
   }
 
+  // cloudinary Widget
+  var myWidget = window.cloudinary.createUploadWidget({
+    cloudName: CLOUD_NAME, 
+    uploadPreset: CLOUD_PRESET,
+    sources: [ 'local', 'url', 'image_search', 'camera', 'dropbox', 'facebook', 'instagram', 'google_drive'],
+    googleApiKey: GOOGLE_SEARCH_API_KEY ,
+    searchBySites: ["all", "cloudinary.com"],
+    searchByRights: true }, (error, result) => { 
+      if (!error && result && result.event === "success") { 
+        setImageId(result.info.public_id)
+      }
+    }
+  )
+
+  function showWidget() {
+    myWidget.open();
+  }
+
+  // adds quiz with quentions to database
   function updateDatabase() {
     addToQuestionsArray()
     var quiz = {
@@ -53,18 +84,22 @@ const CreateGame = (props) => {
     socket.emit("newQuiz", quiz)
   }
 
+  // function to add question to question array
   function addToQuestionsArray() {
     let questionObject = {
       question: question,
       answers: [answer1, answer2, answer3, answer4],
       correct: correctAnswer,
+      imageId: imageId
     }
     let temp = questionsArray
     temp.push(questionObject)
     setQuestionsArray(temp)
   }
 
-  function addQuestion() {
+  // calls addToQuestionsArray() and empty all variable
+  function addQuestion(e) {
+    e.preventDefault()
     addToQuestionsArray()
     setQuestionNum(parseInt(questionNum) + 1)
     setQuestion("")
@@ -88,22 +123,17 @@ const CreateGame = (props) => {
     setQuizTitle("")
   }
 
+  // set a random color
   function chooseRandomColor() {
     var colors = ["#4CAF50", "#f94a1e", "#3399ff", "#ff9933"]
     var randomNum = Math.floor(Math.random() * 4)
     setRandomColor(colors[randomNum])
   }
 
+  // on start game redirect to host lobby
   socket.on("startGameFromCreator", function (data) {
     window.location.href = "../../host/?id=" + data
   })
-
-  function checkCorrectAnswer() {
-    if (correctAnswer <= 0 || correctAnswer > 4) {
-      alert.show("Correct Answer must be between 1 to 4")
-      setCorrectAnswer("")
-    }
-  }
 
   useEffect(() => {
     chooseRandomColor()
@@ -129,7 +159,7 @@ const CreateGame = (props) => {
             return (
               <div style={{ backgroundColor: randomColor }}>
                 <p>
-                  {1}. {question.question}
+                  {questionNum}. {question.question}
                 </p>
               </div>
             )
@@ -138,7 +168,13 @@ const CreateGame = (props) => {
         <br />
         <div style={{ backgroundColor: randomColor, paddingBottom: "15px" }}>
           <div id="allQuestions">
-            <div id="question-field">
+            <form id="question-field" onSubmit={addQuestion}>
+              <CloudinaryContext cloudName={CLOUD_NAME}>
+                <div>
+                  <Image publicId={imageId} style={{width: '70%'}} crop="scale" />
+                </div>
+              </CloudinaryContext>
+              <button id="upload_widget" class="cloudinary-button" onClick={showWidget}>Upload an Image</button>
               <label>Question 1: </label>
               <input
                 className="question"
@@ -196,20 +232,30 @@ const CreateGame = (props) => {
               />
               <br />
               <br />
-              <label>Correct Answer (1-4) :</label>
-              <input
-                className="correct"
-                id="correct1"
-                type="number"
-                onChange={handleCorrectAnswer}
-                value={correctAnswer}
-                autoFocus
-                onInput={checkCorrectAnswer}
-                required
-              />
-            </div>
+              <p>Choose Correct Answer:</p>
+              <div className="correct">
+                <div>
+                    <input type="radio" id="a1" name="drone" value="1"  onClick={handleCorrectAnswer} required/>
+                    <label for="a1">Answer 1</label>
+                  </div>
+
+                  <div>
+                    <input type="radio" id="a2" name="drone" value="2" onClick={handleCorrectAnswer}/>
+                    <label for="a2">Answer 2</label>
+                  </div>
+
+                  <div>
+                    <input type="radio" id="a3" name="drone" value="3" onClick={handleCorrectAnswer}/>
+                    <label for="a3">Answer 3</label>
+                  </div>
+                  <div>
+                    <input type="radio" id="a4" name="drone" value="4" onClick={handleCorrectAnswer}/>
+                    <label for="a4">Answer 4</label>
+                  </div>
+              </div>
+              <button type="submit" >Add another question</button>
+            </form>
           </div>
-          <button onClick={addQuestion}>Add another question</button>
 
           <div className="form-field">
             <button onClick={updateDatabase}>Create Quiz</button>
