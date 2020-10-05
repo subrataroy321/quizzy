@@ -160,3 +160,9 @@
     grid-template-columns: 1fr 1fr 1fr;
     place-items: center;
 }
+
+@media only screen and (max-width: 992px) {
+    #nextQButton {
+        margin-bottom: 130px;
+    }
+}
