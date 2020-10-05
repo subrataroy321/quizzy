@@ -95,6 +95,7 @@ const CreateGame = (props) => {
     let temp = questionsArray
     temp.push(questionObject)
     setQuestionsArray(temp)
+    alert.show("Question Added")
   }
 
   // calls addToQuestionsArray() and empty all variable
