@@ -127,7 +127,8 @@ Important: Do not close the server.
     - on code editor set env variables according to `.env.example`
     - `npm start` to start the react app.
 
-## Entity Relationship Diagram (ERD)
+## Diagram
+<img src="./readme/p4_erd.png">
 
 ## Application Screenshots
 
@@ -255,3 +256,12 @@ Important: Do not close the server.
     })
   })
 ```
+
+## Feedback
+
+Feel free to comment and make pull request.
+
+## Contributor
+
+Subrata Roy
+[LinkedIn](https://www.linkedin.com/in/subrataroy321/)
