@@ -121,6 +121,7 @@ io.on("connection", (socket) => {
 
           // set question data to variable
           let question = res[0].questions[0].question
+          let imageId = res[0].questions[0].imageId
           let answer1 = res[0].questions[0].answers[0]
           let answer2 = res[0].questions[0].answers[1]
           let answer3 = res[0].questions[0].answers[2]
@@ -135,6 +136,7 @@ io.on("connection", (socket) => {
             totalQuestions: totalQuestions,
             questionNum: game.gameData.question,
             q1: question,
+            imageId: imageId,
             a1: answer1,
             a2: answer2,
             a3: answer3,
@@ -371,6 +373,7 @@ io.on("connection", (socket) => {
           let questionNum = game.gameData.question
           questionNum = questionNum - 1
           let question = res[0].questions[questionNum].question
+          let imageId = res[0].questions[questionNum].imageId
           let answer1 = res[0].questions[questionNum].answers[0]
           let answer2 = res[0].questions[questionNum].answers[1]
           let answer3 = res[0].questions[questionNum].answers[2]
@@ -383,6 +386,7 @@ io.on("connection", (socket) => {
             totalQuestions: totalQuestions,
             questionNum: game.gameData.question,
             q1: question,
+            imageId: imageId,
             a1: answer1,
             a2: answer2,
             a3: answer3,
@@ -510,6 +514,22 @@ io.on("connection", (socket) => {
         socket.emit("gameNamesData", res) // send game Data 
         db.close()
       })
+    })
+  })
+
+  // delete requested game from database
+  socket.on('deleteGame', function(gameId, userId) {
+    MongoClient.connect(MONGO_URI, function (err, db) {
+      if (err) throw err
+
+      let dbo = db.db("quizzy")
+      let query = { userId: userId, id: gameId }
+
+      // makes a query to delete a saved games by game id
+      dbo.collection("quizzyGames").findOneAndDelete(query).then(function (res) {
+        socket.emit("updateSavedGames", userId) // send game Data 
+        db.close()
+      }).catch(err => console.log(err))
     })
   })
 
