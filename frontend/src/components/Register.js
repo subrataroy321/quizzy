@@ -36,7 +36,6 @@ const Register = () => {
     e.preventDefault()
 
     if (password === confirmPassword) {
-      alert.show("Password and Confirm Password does not matchs!")
       const newUser = { name, email, password, confirmPassword }
   
       // on submit sends a user creation request with input datas
@@ -51,6 +50,8 @@ const Register = () => {
           alert.show("Something Went Wrong! Please Try Again")
           console.log(error)
         })
+    } else {
+      alert.show("Password and Confirm Password does not matchs!")
     }
   }
 
