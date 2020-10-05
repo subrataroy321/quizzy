@@ -545,12 +545,13 @@ io.on("connection", (socket) => {
         if (err) throw err
 
         let num = Object.keys(result).length
-        let newGameId = result[num - 1].id + 1
+        let newGameId
         // set serialize id
         if (num == 0) {
           data.id = 1
           num = 1
         } else {
+          newGameId = result[num - 1].id + 1
           data.id = newGameId
         }
         let game = data
