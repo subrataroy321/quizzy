@@ -18,12 +18,10 @@ const SavedQuizzys = (props) => {
     setSavedGames(data)
   })
 
-  // When user delete a game refetch the data from database
+  // When user delete a game refetch the data from database using socket
   socket.on("updateSavedGames", function (data) {
     if (props.user.id === data) {
       socket.emit("requestDbNames", props.user.id)
-    } else {
-      window.location.href = "../../savedQuizzys"
     }
   })
 
