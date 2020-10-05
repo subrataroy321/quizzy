@@ -51,6 +51,7 @@ const Register = () => {
           console.log(error)
         })
   }
+}
 
   if (redirect) return <Redirect to="/signin" />
 
