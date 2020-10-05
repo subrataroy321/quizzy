@@ -79,7 +79,7 @@ function App() {
           />
           <Route path='/register' component={Register}/>
           <Route path='/about' component={About}/>
-          <PrivateRoute path='/profile' component={Profile} user={currentUser} />
+          <PrivateRoute path='/profile' component={Profile} user={currentUser} setCurrentUser={setCurrentUser} />
           <PrivateRoute path='/createGame' component={CreateGame} user={currentUser}/>
           <PrivateRoute path='/savedQuizzys' component={SavedQuizzys} user={currentUser}/>
           <Route path='/player' component={Player} />
