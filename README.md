@@ -261,6 +261,13 @@ Important: Do not close the server.
 
 Feel free to comment and make pull request.
 
+## Future Goals
+
+- set question time while creation
+- make multiline input for answer option
+- make multiselect answer type question
+- make more responsive for variours platforms
+
 ## Contributor
 
 Subrata Roy
