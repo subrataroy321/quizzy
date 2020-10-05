@@ -47,12 +47,9 @@ const Register = () => {
           setRedirect(true)
         })
         .catch((error) => {
-          alert.show("Something Went Wrong! Please Try Again")
+          alert.show("Account Already Exists! Try with different Email!")
           console.log(error)
         })
-    } else {
-      alert.show("Password and Confirm Password does not matchs!")
-    }
   }
 
   if (redirect) return <Redirect to="/signin" />
