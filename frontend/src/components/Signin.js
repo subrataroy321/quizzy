@@ -1,4 +1,6 @@
 import React, { useState } from "react"
+import "./SignIn.css"
+import { useAlert } from "react-alert"
 import axios from "axios"
 import jwt_decode from "jwt-decode"
 import setAuthToken from "../utils/setAuthToken"
@@ -6,6 +8,8 @@ import { Redirect } from "react-router-dom"
 const REACT_APP_SERVER_URL = process.env.REACT_APP_SERVER_URL
 
 const Login = (props) => {
+  const alert = useAlert()
+
   let [email, setEmail] = useState("")
   let [password, setPassword] = useState("")
 
@@ -17,12 +21,13 @@ const Login = (props) => {
     setPassword(e.target.value)
   }
 
+  // on Submit sends a request to login
   let handleSubmit = (e) => {
     e.preventDefault()
-
     const userDate = { email, password }
-
-    axios.post(`${REACT_APP_SERVER_URL}/api/users/login`, userDate)
+    // makes login in request to our server
+    axios
+      .post(`${REACT_APP_SERVER_URL}/api/users/login`, userDate)
       .then((response) => {
         const { token } = response.data
         // Save token to localStorage
@@ -33,14 +38,19 @@ const Login = (props) => {
         const decoded = jwt_decode(token)
         // set current user
         props.nowCurrentUser(decoded)
+        alert.show("Successfully LogedIn")
       })
-      .catch((error) => console.log("Login error", error))
+      .catch((error) => {
+        alert.show("Email or Password Incorrect!")
+        console.log("Login error", error)
+      })
   }
 
+  // if user exists redirect to profile
   if (props.user) return <Redirect to="/profile" user={props.user} />
 
   return (
-    <div className="row mt-4">
+    <div className="row mt-4 signInForm">
       <div className="col-md-7 offset-md-3">
         <div className="card card-body">
           <h2 className="py-2">Log in</h2>

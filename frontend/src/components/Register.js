@@ -1,16 +1,21 @@
 import React, { useState } from "react"
+import './Register.css'
+import {useAlert} from 'react-alert'
 import axios from "axios"
 import { Redirect } from "react-router-dom"
-
 const REACT_APP_SERVER_URL = process.env.REACT_APP_SERVER_URL
 
 const Register = () => {
+  const alert = useAlert()
+
+  // state variables
   let [name, setName] = useState("")
   let [email, setEmail] = useState("")
   let [password, setPassword] = useState("")
   let [confirmPassword, setConfirmPassword] = useState("")
   let [redirect, setRedirect] = useState("")
 
+  // handles input values
   const handleName = (e) => {
     setName(e.target.value)
   }
@@ -31,15 +36,19 @@ const Register = () => {
     e.preventDefault()
 
     if (password === confirmPassword) {
+      alert.show("Password and Confirm Password does not matchs!")
       const newUser = { name, email, password, confirmPassword }
-
+  
+      // on submit sends a user creation request with input datas
       axios
         .post(`${REACT_APP_SERVER_URL}/api/users/register`, newUser)
         .then((response) => {
+          alert.show("Account Created Successfully!")
           console.log(response)
           setRedirect(true)
         })
         .catch((error) => {
+          alert.show("Something Went Wrong! Please Try Again")
           console.log(error)
         })
     }
@@ -48,7 +57,7 @@ const Register = () => {
   if (redirect) return <Redirect to="/signin" />
 
   return (
-    <div className="row mt-4">
+    <div className="row mt-4 registerForm">
       <div className="col-md-7 offset-md-3">
         <div className="card card-body">
           <h2 className="py-2">Sign Up</h2>

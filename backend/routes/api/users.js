@@ -64,6 +64,7 @@ router.post("/login", (req, res) => {
               id: user.id,
               name: user.name,
               email: user.email,
+              imageId: user.imageId
             }
 
             // sign in token
@@ -89,12 +90,53 @@ router.post("/login", (req, res) => {
     })
 })
 
+// update route for profile data
+router.post("/updateData", (req, res) => {
+  const email = req.body.email
+  const name = req.body.name
+
+  // find user using email
+  db.User.findOneAndUpdate({ email }, { name })
+    .then((user) => {
+      if (!user) {
+        res.status(400).json({ message: "User not found" })
+      } else {
+        res.json(user)
+      }
+    })
+    .catch((err) => {
+      console.log("Error while creating a user ", err)
+      res.status(503).send({ message: "Server Error" })
+    })
+})
+
+// update route for image
+router.post("/updateImage", (req, res) => {
+  const email = req.body.email
+  const imageId = req.body.imageId
+
+  // find user using email
+  db.User.findOneAndUpdate({ email }, { imageId })
+    .then((user) => {
+      if (!user) {
+        res.status(400).json({ message: "User not found" })
+      } else {
+        res.json(user)
+      }
+    })
+    .catch((err) => {
+      console.log("Error while creating a user ", err)
+      res.status(503).send({ message: "Server Error" })
+    })
+})
+
 // GET api/user/current (Private)
 router.get("/current", passport.authenticate("jwt", { session: false }), (req, res) => {
     res.json({
       id: req.user.is,
       name: req.user.name,
       email: req.user.email,
+      imageId: res.user.imageId
     })
   }
 )

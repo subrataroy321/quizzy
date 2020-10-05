@@ -1,5 +1,5 @@
 #creatorStudio {
-    text-align: center;
+  text-align: center;
   padding-bottom: 50px;
   font-size: 25px;
 }
@@ -24,8 +24,7 @@
   #question-field {
     border-style: groove;
     border-width: 1px;
-    padding-top: 30px;
-    padding-bottom: 30px;
+    padding-bottom: 10px;
   }
   
   .question {
@@ -39,8 +38,13 @@
   }
   
   .correct {
-    width: 50px;
-    text-align: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+
+  .correct input[type='radio']{
+    transform: scale(2);
+    margin-right: 20px;
   }
   #title {
     text-align: center;
