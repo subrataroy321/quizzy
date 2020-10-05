@@ -33,7 +33,6 @@ const Profile = (props) => {
   )
 
   useEffect(() => {
-    console.log(props.user.imageId)
     if(props.user.imageId) {
         setProfileImage(props.user.imageId)
         setHasProfileImage(true)
@@ -103,7 +102,7 @@ const Profile = (props) => {
             </div>
           </CloudinaryContext>
           :
-          <img src={profileImage} id="profileImage" alt="profile image"/>
+          <img src={profileImage} id="profileImage" alt="profile"/>
         }
         <p id="changeProfileImage">
           <a href="#" id="upload_widget"  onClick={showWidget}>Upload Profile Picture</a>
@@ -116,7 +115,7 @@ const Profile = (props) => {
       <form onSubmit={updateData} style={{display: `${showEditForm}`}}>
         <label htmlFor="name" >Name: </label>
         <input type="text" id="name" value={name} onChange={handleName} required/>
-        <input type="text" hidden value={props.user.email}/>
+        <input type="text" hidden readOnly value={props.user.email}/>
         <button>Submit</button>
       </form>
       <p className="profileData">
