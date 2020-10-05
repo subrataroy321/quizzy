@@ -144,13 +144,14 @@ const CreateGame = (props) => {
     <div id="creatorStudio">
         <h1 id="title">Quizzy Creator Studio</h1>
         <div className="form-field">
-          <label id="quizTitle">Quiz Title: </label>
+          <label >Quiz Title: </label>
           <input
             id="name"
             type="text"
             name="name"
             onChange={handleQuizTitle}
             value={quizTitle}
+            id="quizTitle"
             autoFocus
           />
         </div>

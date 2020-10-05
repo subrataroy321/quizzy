@@ -49,3 +49,19 @@
   #title {
     text-align: center;
   }
+
+@media only screen and (max-width: 992px) {
+
+  #creatorStudio button{
+    width: 80%;
+    font-size: 20px;
+  }
+  #quizTitle {
+    width: 90%;
+  }
+  #creatorStudio {
+    text-align: center;
+    padding-bottom: 50px;
+    font-size: 25px;
+  }
+}

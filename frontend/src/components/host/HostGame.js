@@ -72,9 +72,8 @@ const HostGame = () => {
 
   let gifs = [gif_1, gif_2, gif_3, gif_4, gif_5, gif_6]
   let audios = [audio1, audio2, audio3, audio5, audio6, audio7, audio8]
-  var randomNum = Math.floor(Math.random() * 8)
-
   function setRandomAudio() {
+    let randomNum = Math.floor(Math.random() * 8)
     setAudio(audios[randomNum])
   }
 
@@ -119,6 +118,7 @@ const HostGame = () => {
         setShowQuestionImage("block")
         setHasQuestionImage(true)
       } else {
+        let randomNum = Math.floor(Math.random() * 8)
         setQuestionImage(gifs[randomNum])
       }
     })
